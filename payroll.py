@@ -127,8 +127,8 @@ def main(args):
 
     st = datetime.now()
     print("Start Time: ", st)
-    g2 = sheet.groupby(["Last Name", "First Name"]).filter(lambda x: x["First Name"].iloc[0] == "FANNY").groupby(["Last Name", "First Name"]).apply(calcPerson)
-    # g2 = sheet.groupby(["Last Name", "First Name"]).apply(calcPerson)
+    # g2 = sheet.groupby(["Last Name", "First Name"]).filter(lambda x: x["First Name"].iloc[0] == "FANNY").groupby(["Last Name", "First Name"]).apply(calcPerson)
+    g2 = sheet.groupby(["Last Name", "First Name"]).apply(calcPerson)
     print("Duration: ", datetime.now() - st)
 
     # print(g1)
@@ -153,7 +153,7 @@ def main(args):
     g["Night Pay"]    = g["Night Rate"] * g["Night"]
     g["Night_OT Pay"] = (g["Night Rate"] * 1.5) * g["Night_OT"]
     p((g[["Day Rate", "Night Rate"]], g["Night_OT"]), prefix="Rates: ")
-    input("...")
+    # input("...")
     g["Pay"] = g["Day Pay"] + g["Night Pay"]
     g["Pay_OT"] = g["Day_OT Pay"] + g["Night_OT Pay"]
 
