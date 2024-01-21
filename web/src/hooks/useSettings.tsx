@@ -1,5 +1,5 @@
 import { Button, Input } from "../components";
-import { Modal, ModalController, useModal } from "./useModal";
+import { Modal, ModalController } from "./useModal";
 import { Settings as SettingsType } from "../utils/types";
 import { Settings } from "@mui/icons-material";
 

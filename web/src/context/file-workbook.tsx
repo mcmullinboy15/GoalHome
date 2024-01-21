@@ -35,7 +35,7 @@ const FileWorkBookProvider = ({ children }: any): any => {
       timesheetFilename,
       setTimesheetFilename,
     }),
-    [payRatesData, timesheetData]
+    [payRatesData, timesheetData, timesheetFilename]
   );
 
   return (

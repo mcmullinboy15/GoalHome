@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { WorkBook, WorkSheet, read, utils, writeFile } from "xlsx";
 import { PayRate, PayrollRow, TimesheetEntry } from "../utils/types";
 import { format } from "../utils/utils";
 import { FileWorkBookContext } from "../context/file-workbook";
-import { downloadFile, uploadFile } from "../common/firebase";
-import { useSettings } from "./useSettings";
+import { uploadFile } from "../common/firebase";
+// import { useSettings } from "./useSettings";
 
 type FileWorkBookManagmentType = {
   payRatesData: PayRate[] | null;
@@ -38,7 +38,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
     timesheetFilename,
     setTimesheetFilename,
   } = useContext(FileWorkBookContext);
-  const { settings } = useSettings();
+  // const { settings } = useSettings();
 
   const payRatesFilename = "pay-rates.xlsx";
 
@@ -51,19 +51,19 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
    *  - Headers don't exist
    */
 
-  useEffect(() => {
-    async function loadPayRates() {
-      const file = await downloadFile(payRatesFilename);
-      if (file && file?.size > 0) {
-        const payRatesData: PayRate[] = await proccessXLSXFile(
-          file,
-          settings.payRatesSheetName
-        );
-        setPayRatesData(payRatesData);
-      }
-    }
-    // void loadPayRates();
-  }, []);
+  // useEffect(() => {
+  //   async function loadPayRates() {
+  //     const file = await downloadFile(payRatesFilename);
+  //     if (file && file?.size > 0) {
+  //       const payRatesData: PayRate[] = await proccessXLSXFile(
+  //         file,
+  //         settings.payRatesSheetName
+  //       );
+  //       setPayRatesData(payRatesData);
+  //     }
+  //   }
+  //   void loadPayRates();
+  // }, []);
 
   // Load Timesheet File and output the data
   const proccessXLSXFile = async (
