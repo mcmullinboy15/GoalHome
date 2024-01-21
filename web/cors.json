@@ -1,7 +1,0 @@
-[
-  {
-    "origin": ["http://localhost:3000", "http://localhost:3001", "https://goalhome.mcmullin.app"],
-    "method": ["GET", "POST"],
-    "maxAgeSeconds": 3600
-  }
-]
