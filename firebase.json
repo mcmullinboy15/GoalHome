@@ -7,7 +7,7 @@
     "predeloy": [
       "npm --prefix \"$RESOURCE_DIR\" run build"
     ],
-    "public": "web\\build",
+    "public": "web/build",
     "ignore": [
       "firebase.json",
       "**/.*",
