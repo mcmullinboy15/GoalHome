@@ -3,7 +3,7 @@ import { WorkBook, WorkSheet, read, utils, writeFile } from "xlsx";
 import { PayRate, PayrollRow, TimesheetEntry } from "../utils/types";
 import { format } from "../utils/utils";
 import { FileWorkBookContext } from "../context/file-workbook";
-import { uploadFile } from "../common/firebase";
+// import { uploadFile } from "../common/firebase";
 // import { useSettings } from "./useSettings";
 
 type FileWorkBookManagmentType = {
@@ -40,7 +40,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
   } = useContext(FileWorkBookContext);
   // const { settings } = useSettings();
 
-  const payRatesFilename = "pay-rates.xlsx";
+  // const payRatesFilename = "pay-rates.xlsx";
 
   /**
    * XLSX File Management
@@ -130,7 +130,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
     sheet_name: string
   ) => {
     const file = files?.[0] || null;
-    await uploadFile(file, payRatesFilename);
+    // await uploadFile(file, payRatesFilename);
     const payRatesData: PayRate[] = await proccessXLSXFile(file, sheet_name);
     setPayRatesData(payRatesData);
   };
