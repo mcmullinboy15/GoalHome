@@ -32,3 +32,9 @@ SEALII      FANNY   1274.9      265.65      352.8         50.88  1627.7  316.53 
 
 ## THIS IS PERFECT!!!!
 SEALII      FANNY   1274.9      265.65      352.8         50.88  1627.7  316.53  57.95    8.05  22.05      2.12               0.0        90.17    1944.23
+
+
+
+1. color full indicators
+1. full name column
+1. charts and graphs. Overtime? or just compare/show how much each person made this pay period

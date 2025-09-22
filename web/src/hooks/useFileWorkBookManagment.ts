@@ -51,6 +51,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
    *  - Headers don't exist
    */
 
+  // TODO: Move to Context so it doesn't reload so much
   // useEffect(() => {
   //   async function loadPayRates() {
   //     const file = await downloadFile(payRatesFilename);
@@ -148,6 +149,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
     setTimesheetData(timesheetData);
   };
 
+  // TODO: Make the wooksheets look good!
   const onDownloadPayroll = async (
     payrollHours: PayrollRow[],
     payrollDollars: PayrollRow[],
