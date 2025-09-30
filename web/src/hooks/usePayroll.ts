@@ -3,8 +3,8 @@ import {
   PayRate,
   PayRateFileHeaders,
   PayrollRow,
-  TimesheetEntry,
-  TimesheetFileHeaders,
+  OriginalTimesheetEntry,
+  NewTimesheetFileHeaders,
 } from "../utils/types";
 import { format, isDay, toDateRange } from "../utils/utils";
 import { PayrollContext } from "../context/payroll";
@@ -14,7 +14,7 @@ import { notify } from "../common/notify";
 
 export const verifyPayrollData = (
   payRatesData: PayRate[],
-  timesheetData: TimesheetEntry[]
+  timesheetData: OriginalTimesheetEntry[]
 ): boolean => {
   if (!payRatesData || payRatesData.length === 0) {
     notify.error("Missing Pay Rates Data");
@@ -22,6 +22,7 @@ export const verifyPayrollData = (
   }
 
   if (!timesheetData || timesheetData.length === 0) {
+    console.log({ timesheetData });
     notify.error("Missing Timesheet Data");
     return false;
   }
@@ -61,7 +62,7 @@ export const verifyPayrollData = (
     (header) => !payRatesHeaders.includes(header)
   );
 
-  const missingTimesheetHeaders = TimesheetFileHeaders.filter(
+  const missingTimesheetHeaders = NewTimesheetFileHeaders.filter(
     (header) => !timesheetHeaders.includes(header)
   );
 
@@ -79,17 +80,20 @@ export const verifyPayrollData = (
     return false;
   }
 
+  console.log("Payroll Data Verified");
   return true;
 };
 
 export const runPayroll = (
   payRatesData: PayRate[],
-  timesheet: TimesheetEntry[],
+  timesheet: OriginalTimesheetEntry[],
   pextra: number = 2
 ): [PayrollRow[], PayrollRow[]] => {
   // OT
   // Week
   // Paddington
+
+  console.log({ timesheet });
 
   const counts = {} as any;
 
@@ -103,12 +107,21 @@ export const runPayroll = (
 
     const name = shift["First Name"] + " " + shift["Last Name"];
     const loc = shift["Schedule"];
-    const isPaddington = loc === "Paddington";
+    const isPaddington = [
+      "Padd Upstairs",
+      "Padd Grave",
+      "Padd Downstairs",
+      "Padd B Grave",
+    ].includes(loc);
+    console.log({ name, loc, isPaddington });
 
+    console.log({ shift });
     const range = toDateRange(shift["Start Time"], shift["End Time"]);
+    console.log({ range });
     range.forEach((date, index) => {
       const isday = isDay(date);
       const week = date.isoWeek();
+      console.log({ name, date: date.format(format), isday, week });
 
       summary_minutes[name] = summary_minutes[name] || {};
       summary_minutes[name][week] = summary_minutes[name][week] || {};
@@ -430,7 +443,7 @@ export const usePayroll = () => {
     payrollDollars,
     runPayroll: (
       payRatesData: PayRate[] | null,
-      timesheetData: TimesheetEntry[] | null
+      timesheetData: OriginalTimesheetEntry[] | null
     ) => {
       if (!payRatesData) {
         notify.error("Missing Pay Rates Data");

@@ -1,4 +1,4 @@
-import { PayrollRow, TimesheetEntry } from "../utils/types";
+import { PayrollRow, OriginalTimesheetEntry } from "../utils/types";
 import moment from "moment";
 
 export const dataTestMinutes = [
@@ -2764,7 +2764,7 @@ export const timesheetTestData = [
   },
 ];
 
-export const timesheetTestDataConverted: TimesheetEntry[] =
+export const timesheetTestDataConverted: OriginalTimesheetEntry[] =
   timesheetTestData.map((item) => ({
     "First Name": item.first,
     "Last Name": item.last,

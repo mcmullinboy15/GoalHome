@@ -123,7 +123,7 @@ export const useSettings = () => {
     payrollHoursSheetName: "Payroll - Hours",
     payrollPaySheetName: "Payroll - Pay",
     payrollSuffix: " - Payroll",
-    timesheetSheetName: "Entries",
+    timesheetSheetName: "All Employees",
   } as SettingsType;
 
   return { settings /* modal, updateSetting, reset, submit */ }; // The problem has to be here

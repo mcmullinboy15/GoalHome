@@ -1,14 +1,21 @@
 import { useContext } from "react";
 import { WorkBook, WorkSheet, read, utils, writeFile } from "xlsx";
-import { PayRate, PayrollRow, TimesheetEntry } from "../utils/types";
+import {
+  PayRate,
+  PayrollRow,
+  OriginalTimesheetEntry as OriginalTimesheetEntry,
+  NewInputTimesheetEntry,
+} from "../utils/types";
 import { format } from "../utils/utils";
 import { FileWorkBookContext } from "../context/file-workbook";
 // import { uploadFile } from "../common/firebase";
 // import { useSettings } from "./useSettings";
+import moment from "moment/moment";
+import { notify } from "../notify";
 
 type FileWorkBookManagmentType = {
   payRatesData: PayRate[] | null;
-  timesheetData: TimesheetEntry[] | null;
+  timesheetData: OriginalTimesheetEntry[] | null;
 
   onPayRatesFileInputChange: (
     files: FileList,
@@ -122,6 +129,53 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
     writeFile(workbook, filename, { bookType: "xlsx", type: "file" });
   };
 
+  const convertNewTimeSheetToTimesheetEntrys = (
+    timesheetData: NewInputTimesheetEntry[]
+  ): (OriginalTimesheetEntry | null)[] => {
+    return timesheetData.map((entry) => {
+      const [regularHours, regularMinutes] = entry["Regular"]
+        ?.split(":")
+        .map(Number) || [0, 0];
+
+      const [dailyOtHours, dailyOtMinutes] = entry["Daily overtime hours"]
+        ?.split(":")
+        .map(Number) || [0, 0];
+
+      if (
+        !entry["Start Date"] ||
+        !entry["In"] ||
+        !entry["End Date"] ||
+        !entry["Out"]
+      ) {
+        // notify.warn(
+        //   `Invalid date/time in entry for ${entry["First name"]} ${entry["Last name"]}`
+        // );
+        return null;
+      }
+
+      const startTime = moment(`${entry["Start Date"]} ${entry["In"]}`);
+      const endTime = moment(`${entry["End Date"].split(' ')[0]} ${entry["Out"]}`);
+      if (!startTime.isValid() || !endTime.isValid()) {
+        notify.warn(
+          `Invalid date/time in entry for ${entry["First name"]} ${entry["Last name"]}`
+        );
+        // return null;
+        throw new Error("Invalid date/time");
+      }
+
+      return {
+        // ...entry,
+        "First Name": entry["First name"],
+        "Last Name": entry["Last name"],
+        "Start Time": startTime,
+        "End Time": endTime,
+        Regular: regularHours + regularMinutes / 60,
+        OT: dailyOtHours + dailyOtMinutes / 60,
+        Schedule: entry.Type || "No Schedule",
+      };
+    });
+  };
+
   /*
    * Event Handlers
    */
@@ -141,12 +195,18 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
     sheet_name: string
   ) => {
     const file = files?.[0] || null;
-    const timesheetData: TimesheetEntry[] = await proccessXLSXFile(
+    console.log({ file });
+    const timesheetData: NewInputTimesheetEntry[] = await proccessXLSXFile(
       file,
       sheet_name
     );
+    console.log({ timesheetData });
+    const originalTimesheetData = convertNewTimeSheetToTimesheetEntrys(
+      timesheetData
+    ).filter((e): e is OriginalTimesheetEntry => e !== null);
+    console.log({ originalTimesheetData });
     setTimesheetFilename(file?.name || "");
-    setTimesheetData(timesheetData);
+    setTimesheetData(originalTimesheetData);
   };
 
   // TODO: Make the wooksheets look good!

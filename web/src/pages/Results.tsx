@@ -12,7 +12,7 @@ import {
   PayRate,
   PayrollColumns,
   PayrollRow,
-  TimesheetEntry,
+  OriginalTimesheetEntry,
 } from "../utils/types";
 import { useFileWorkBookManagment } from "../hooks/useFileWorkBookManagment";
 import { usePayroll } from "../hooks/usePayroll";
@@ -68,7 +68,7 @@ type DetailPanelProps = {
   row: MRT_Row<PayrollRow>;
   table: MRT_TableInstance<PayrollRow>;
   payRatesData: PayRate[] | null;
-  timesheetData: TimesheetEntry[] | null;
+  timesheetData: OriginalTimesheetEntry[] | null;
 };
 
 const DetailPanel = ({
@@ -230,7 +230,7 @@ export const Results = () => {
 
   // Define columns
 
-  // TODO: 
+  // TODO:
   // accessorFn: (row) => row[PayrollColumns.Day].toLocaleString('en-US', {
   //   style: 'currency',
   //   currency: 'USD',
