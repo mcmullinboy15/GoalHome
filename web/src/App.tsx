@@ -26,6 +26,8 @@ export const App = () => {
         <a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
           <Button variant="outlined">mcmullinand@gmail.com</Button>
         </a>
+
+        <p className="text-gray-400 font-mono text-xs">v2.0.0</p>
       </footer>
 
       {/* <SettingsModal {...settingsController} settings={settings} /> */}
