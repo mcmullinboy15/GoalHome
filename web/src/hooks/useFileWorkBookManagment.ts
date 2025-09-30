@@ -3,7 +3,7 @@ import { WorkBook, WorkSheet, read, utils, writeFile } from "xlsx";
 import {
   PayRate,
   PayrollRow,
-  OriginalTimesheetEntry as OriginalTimesheetEntry,
+  OriginalTimesheetEntry,
   NewInputTimesheetEntry,
 } from "../utils/types";
 import { format } from "../utils/utils";
@@ -154,7 +154,9 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
       }
 
       const startTime = moment(`${entry["Start Date"]} ${entry["In"]}`);
-      const endTime = moment(`${entry["End Date"].split(' ')[0]} ${entry["Out"]}`);
+      const endTime = moment(
+        `${entry["End Date"].split(" ")[0]} ${entry["Out"]}`
+      );
       if (!startTime.isValid() || !endTime.isValid()) {
         notify.warn(
           `Invalid date/time in entry for ${entry["First name"]} ${entry["Last name"]}`
