@@ -9,17 +9,17 @@ import { RunPayrollProvider } from "./context/payroll";
 import { FileWorkBookProvider } from "./context/file-workbook";
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+	document.getElementById("root") as HTMLElement,
 );
 root.render(
-  <React.StrictMode>
-    <FileWorkBookProvider>
-      <RunPayrollProvider>
-        <RouterProvider router={router} />
-      </RunPayrollProvider>
-    </FileWorkBookProvider>
-    <NotificationProvider />
-  </React.StrictMode>
+	<React.StrictMode>
+		<FileWorkBookProvider>
+			<RunPayrollProvider>
+				<RouterProvider router={router} />
+			</RunPayrollProvider>
+		</FileWorkBookProvider>
+		<NotificationProvider />
+	</React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function

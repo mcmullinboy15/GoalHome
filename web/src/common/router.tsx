@@ -5,13 +5,13 @@ import { Results } from "../pages/Results";
 import { App } from "../App";
 
 export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-    errorElement: <ErrorPage />,
-    children: [
-      { path: "/", element: <Home /> },
-      { path: "/results", element: <Results /> },
-    ],
-  },
+	{
+		path: "/",
+		element: <App />,
+		errorElement: <ErrorPage />,
+		children: [
+			{ path: "/", element: <Home /> },
+			{ path: "/results", element: <Results /> },
+		],
+	},
 ]);
