@@ -17,6 +17,7 @@ import {
 import { useFileWorkBookManagment } from "../hooks/useFileWorkBookManagment";
 import { usePayroll } from "../hooks/usePayroll";
 import { useSettings } from "../hooks/useSettings";
+import { notify } from "../notify";
 
 type DiffProps = {
   textColor?: string;
@@ -218,7 +219,11 @@ export const Results = () => {
   const { settings } = useSettings();
 
   const handleDownload = () => {
-    if (payrollHours.length === 0 || payrollDollars.length === 0) return;
+    if (payrollHours.length === 0) {
+      notify.error("No payroll data to download");
+      return;
+    }
+
     return onDownloadPayroll(
       payrollHours,
       payrollDollars,
