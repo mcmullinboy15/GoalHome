@@ -13,11 +13,13 @@ import moment from "moment";
 import { notify } from "../common/notify";
 
 export const verifyPayrollData = (
-  payRatesData: PayRate[],
+  payRatesData: PayRate[] | null,
   timesheetData: OriginalTimesheetEntry[]
 ): boolean => {
-  if (!payRatesData || payRatesData.length === 0) {
-    notify.error("Missing Pay Rates Data");
+  if (payRatesData && payRatesData.length === 0) {
+    notify.error(
+      "No rows in the provided Pay Rates Data (Pay rates file is now optional)"
+    );
     return false;
   }
 
@@ -28,7 +30,7 @@ export const verifyPayrollData = (
   }
 
   // Verify Names
-  const payRatesNames = payRatesData.map(
+  const payRatesNames = (payRatesData ?? []).map(
     (pr) => pr["FIRST"].toUpperCase() + " " + pr["LAST"].toUpperCase()
   );
 
@@ -44,17 +46,17 @@ export const verifyPayrollData = (
     new Set(payRatesNames.filter((name) => !timesheetNames.includes(name)))
   );
 
-  if (missingPayRates.length > 0) {
+  if (payRatesData && missingPayRates.length > 0) {
     notify.warn(`Missing Pay Rates for ${missingPayRates.join(", ")}`);
   }
 
-  if (missingTimesheet.length > 0) {
+  if (payRatesData && missingTimesheet.length > 0) {
     notify.warn(`Missing Timesheet for ${missingTimesheet.join(", ")}`);
   }
 
   // Verify Headers
 
-  const payRatesHeaders = Object.keys(payRatesData[0]);
+  const payRatesHeaders = payRatesData ? Object.keys(payRatesData[0]) : [];
 
   const timesheetHeaders = Object.keys(timesheetData[0]);
 
@@ -66,14 +68,14 @@ export const verifyPayrollData = (
     (header) => !timesheetHeaders.includes(header)
   );
 
-  if (missingPayRatesHeaders.length > 0) {
+  if (payRatesData && missingPayRatesHeaders.length > 0) {
     notify.error(
       `Missing Pay Rates Headers for ${missingPayRatesHeaders.join(", ")}`
     );
     return false;
   }
 
-  if (missingTimesheetHeaders.length > 0) {
+  if (payRatesData && missingTimesheetHeaders.length > 0) {
     notify.error(
       `Missing Timesheet Headers for ${missingTimesheetHeaders.join(", ")}`
     );
@@ -85,7 +87,7 @@ export const verifyPayrollData = (
 };
 
 export const runPayroll = (
-  payRatesData: PayRate[],
+  payRatesData: PayRate[] | null,
   timesheet: OriginalTimesheetEntry[],
   pextra: number = 2
 ): [PayrollRow[], PayrollRow[]] => {
@@ -320,8 +322,8 @@ export const runPayroll = (
    * Here we convert to Hours and Dollars Tables
    */
 
-  const payrollHours = [] as any;
-  const payrollDollars = [] as any;
+  const payrollHours: PayrollRow[] = [];
+  const payrollDollars: PayrollRow[] = [];
 
   Object.keys(summary_payrate).forEach((name) => {
     const shifts = timesheet.filter(
@@ -381,13 +383,17 @@ export const runPayroll = (
 
     payrollHours.push(hoursRow);
 
-    const payRate =
-      payRatesData.find(
-        (pr) =>
-          (pr["FIRST"] + " " + pr["LAST"]).toUpperCase() === name.toUpperCase()
-      ) || ({} as PayRate);
+    /**
+     * Convert to Dollars
+     */
+
+    const payRate = payRatesData?.find(
+      (pr) =>
+        (pr["FIRST"] + " " + pr["LAST"]).toUpperCase() === name.toUpperCase()
+    );
     if (!payRate) {
-      console.error(`No pay rate found for ${name}`);
+      // console.error(`No pay rate found for ${name}`);
+      return null;
     }
 
     console.log({ payRate, summary_payrate: summary_payrate[name] });
@@ -445,11 +451,6 @@ export const usePayroll = () => {
       payRatesData: PayRate[] | null,
       timesheetData: OriginalTimesheetEntry[] | null
     ) => {
-      if (!payRatesData) {
-        notify.error("Missing Pay Rates Data");
-        return [];
-      }
-
       if (!timesheetData) {
         notify.error("Missing Timesheet Data");
         return [];
@@ -465,8 +466,8 @@ export const usePayroll = () => {
         timesheetData
       );
 
-      setPayrollHours(payrollHours as PayrollRow[]);
-      setPayrollDollars(payrollDollars as PayrollRow[]);
+      setPayrollHours(payrollHours);
+      setPayrollDollars(payrollDollars);
     },
   };
 };

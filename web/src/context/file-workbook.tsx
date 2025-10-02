@@ -10,14 +10,9 @@ export type FileWorkBookManagmentType = {
   setTimesheetFilename: (timesheetFilename: string) => void;
 };
 
-const FileWorkBookContext = createContext<FileWorkBookManagmentType>({
-  payRatesData: [],
-  setPayRatesData: () => {},
-  timesheetData: [],
-  setTimesheetData: () => {},
-  timesheetFilename: "",
-  setTimesheetFilename: () => {},
-});
+const FileWorkBookContext = createContext<
+  FileWorkBookManagmentType | undefined
+>(undefined);
 
 const FileWorkBookProvider = ({ children }: any): any => {
   const [payRatesData, setPayRatesData] = useState<PayRate[] | null>(null);

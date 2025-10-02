@@ -22,7 +22,7 @@ export const Home = () => {
   // Payroll
   const { runPayroll } = usePayroll();
 
-  const isReady = payRatesData && timesheetData;
+  const isReady = timesheetData;
 
   return (
     <main className="h-full border-t-2">

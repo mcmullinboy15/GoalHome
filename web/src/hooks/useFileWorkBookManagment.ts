@@ -37,14 +37,17 @@ type FileWorkBookManagmentType = {
 };
 
 export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
-  const {
-    payRatesData,
-    setPayRatesData,
-    timesheetData,
-    setTimesheetData,
-    timesheetFilename,
-    setTimesheetFilename,
-  } = useContext(FileWorkBookContext);
+  const context = useContext(FileWorkBookContext);
+  if (context === undefined) {
+    throw new Error(
+      "useFileWorkBookManagment must be used within a FileWorkBookProvider"
+    );
+  }
+
+  const { payRatesData, setPayRatesData } = context;
+  const { timesheetData, setTimesheetData } = context;
+  const { timesheetFilename, setTimesheetFilename } = context;
+
   // const { settings } = useSettings();
 
   // const payRatesFilename = "pay-rates.xlsx";
@@ -150,6 +153,10 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
         // notify.warn(
         //   `Invalid date/time in entry for ${entry["First name"]} ${entry["Last name"]}`
         // );
+        return null;
+      }
+
+      if (entry["Type"] === "Unpaid Leave") {
         return null;
       }
 
