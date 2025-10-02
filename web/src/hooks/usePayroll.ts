@@ -104,8 +104,11 @@ export const runPayroll = (
 
   // Loop through each pay rate
   timesheet.forEach((shift, shiftIndex) => {
-    shift["Start Time"] = moment.utc(shift["Start Time"], format);
-    shift["End Time"] = moment.utc(shift["End Time"], format);
+    shift["Start Time"] = moment
+      .utc(shift["Start Time"], format)
+      .clone()
+      .local();
+    shift["End Time"] = moment.utc(shift["End Time"], format).clone().local();
 
     const name = shift["First Name"] + " " + shift["Last Name"];
     const loc = shift["Schedule"];
@@ -115,15 +118,11 @@ export const runPayroll = (
       "Padd Downstairs",
       "Padd B Grave",
     ].includes(loc);
-    console.log({ name, loc, isPaddington });
 
-    console.log({ shift });
     const range = toDateRange(shift["Start Time"], shift["End Time"]);
-    console.log({ range });
-    range.forEach((date, index) => {
+    range.forEach((date) => {
       const isday = isDay(date);
       const week = date.isoWeek();
-      console.log({ name, date: date.format(format), isday, week });
 
       summary_minutes[name] = summary_minutes[name] || {};
       summary_minutes[name][week] = summary_minutes[name][week] || {};
