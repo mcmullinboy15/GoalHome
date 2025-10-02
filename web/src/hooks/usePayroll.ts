@@ -286,11 +286,13 @@ export const runPayroll = (
 		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 		const total_hours = _.round(total_hours_raw, 2);
 
-		const originalRegularHours = shifts.reduce(
+		const originalRegularHours = shifts.reduce((a, v) => {
+			if (name.includes("Clara")) {
+				console.log({ a, Regular: v.Regular ?? 0 });
+			}
 			// @ts-expect-error
-			(a, v) => a + parseFloat(v.Regular ?? 0),
-			0,
-		);
+			return a + parseFloat(v.Regular ?? 0);
+		}, 0);
 		const originalOTHours = shifts.reduce(
 			// @ts-expect-error
 			(a, v) => a + parseFloat(v.OT ?? 0),
@@ -327,6 +329,12 @@ export const runPayroll = (
 			diffot: diffot === 0 ? 0 : diffot,
 			difftotal: difftotal === 0 ? 0 : difftotal,
 		};
+		if (name.includes("Clara")) {
+			console.log({ diffreg, totalreg_hours_raw, originalRegularHours });
+			console.log({ diffot, totalot_hours_raw, originalOTHours });
+			console.log({ difftotal, total_hours_raw, originalTotalHours });
+			console.log({ name, shifts, hoursRow });
+		}
 
 		payrollHours.push(hoursRow);
 

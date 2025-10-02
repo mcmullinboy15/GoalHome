@@ -325,10 +325,10 @@ export const Results = () => {
 					accessorKey: PayrollColumns.DiffFix,
 					header: "To Fix",
 					Cell: ({ row }) => {
-						if (
-							(row.original[PayrollColumns.DiffRegular] ?? 0) < 0 &&
-							(row.original[PayrollColumns.DiffOT] ?? 0) > 0
-						) {
+						const diffReg = row.original[PayrollColumns.DiffRegular] ?? 0;
+						const diffOT = row.original[PayrollColumns.DiffOT] ?? 0;
+
+						if (diffReg < 0 && diffOT > 0) {
 							// Regular is negative and OT is positive
 							// Therefore the person is missing regular hours or they are in OT
 							// So add more to regular hours. just in case let's not add more to OT hours
@@ -336,16 +336,13 @@ export const Results = () => {
 								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 									Add
 									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(row.original[PayrollColumns.DiffRegular] ?? 0)}
+										{Math.abs(diffReg)}
 									</span>
 									To
 									<span className="font-bold text-blue-500 ml-1">Reg</span>
 								</span>
 							);
-						} else if (
-							(row.original[PayrollColumns.DiffRegular] ?? 0) > 0 &&
-							(row.original[PayrollColumns.DiffOT] ?? 0) < 0
-						) {
+						} else if (diffReg > 0 && diffOT < 0) {
 							// Regular is positive and OT is negative
 							// Therefore the person is missing regular hours or they are in OT
 							// So add more to regular hours. just in case let's not add more to OT hours
@@ -354,7 +351,7 @@ export const Results = () => {
 									<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 										Sub
 										<span className="font-bold text-blue-500 mx-1">
-											{Math.abs(row.original[PayrollColumns.DiffRegular] ?? 0)}
+											{Math.abs(diffReg)}
 										</span>
 										From
 										<span className="font-bold text-blue-500 mx-1">Reg</span>
@@ -364,14 +361,14 @@ export const Results = () => {
 									<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 										Add
 										<span className="font-bold text-blue-500 mx-1">
-											{Math.abs(row.original[PayrollColumns.DiffOT] ?? 0)}
+											{Math.abs(diffOT)}
 										</span>
 										To
 										<span className="font-bold text-blue-500 ml-1">OT</span>
 									</span>
 								</>
 							);
-						} else if ((row.original[PayrollColumns.DiffRegular] ?? 0) < 0) {
+						} else if (diffReg < 0) {
 							// Regular is negative and OT is 0
 							// Therefore the person is missing regular hours
 							// So add more to regular hours.
@@ -379,13 +376,13 @@ export const Results = () => {
 								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 									Add
 									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(row.original[PayrollColumns.DiffRegular] ?? 0)}
+										{Math.abs(diffReg)}
 									</span>
 									To
 									<span className="font-bold text-blue-500 ml-1">Reg</span>
 								</span>
 							);
-						} else if ((row.original[PayrollColumns.DiffOT] ?? 0) < 0) {
+						} else if (diffOT < 0) {
 							// OT is negative and Regular is 0
 							// Therefore the person is missing OT hours
 							// So add more to OT hours.
@@ -393,7 +390,7 @@ export const Results = () => {
 								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 									Add
 									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(row.original[PayrollColumns.DiffOT] ?? 0)}
+										{Math.abs(diffOT)}
 									</span>
 									To
 									<span className="font-bold text-blue-500 ml-1">OT</span>

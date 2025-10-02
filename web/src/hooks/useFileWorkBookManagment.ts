@@ -148,6 +148,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 				!entry["End Date"] ||
 				!entry.Out
 			) {
+				notify.warn(`Missing date/time in entry for ${firstName} ${lastName}`);
 				return null;
 			}
 
@@ -155,7 +156,9 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 				return null;
 			}
 
-			const startTime = moment(`${entry["Start Date"]} ${entry.In}`);
+			const startTime = moment(
+				`${entry["Start Date"].split(" ")[0]} ${entry.In}`,
+			);
 			const endTime = moment(`${entry["End Date"].split(" ")[0]} ${entry.Out}`);
 			if (!startTime.isValid() || !endTime.isValid()) {
 				notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
