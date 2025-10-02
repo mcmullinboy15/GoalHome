@@ -24,7 +24,7 @@ export const App = () => {
 				</p>
 
 				<a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
-					<Butgton variant="outlined">mcmullinand@gmail.com</Butgton>
+					<Button variant="outlined">mcmullinand@gmail.com</Button>
 				</a>
 
 				<p className="text-gray-400 font-mono text-xs">v2.0.1</p>
