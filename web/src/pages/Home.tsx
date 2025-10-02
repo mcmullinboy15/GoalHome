@@ -13,9 +13,8 @@ export const Home = () => {
 	// File WorkBook Handling
 	const {
 		payRatesData,
-		timesheetData,
-
 		onPayRatesFileInputChange,
+		timesheetData,
 		onTimesheetFileInputChange,
 	} = useFileWorkBookManagment();
 

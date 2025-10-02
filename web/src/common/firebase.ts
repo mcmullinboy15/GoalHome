@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import {
 	collection,
 	doc,
+	getDoc,
+	getDocs,
 	getFirestore,
 	updateDoc,
-	getDocs,
-	getDoc,
 } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import type { Settings } from "../utils/types";
 
 // Your web app's Firebase configuration
@@ -43,7 +43,7 @@ export const getSetting = async (setting: keyof Settings) => {
 };
 
 // Update Document in settings collection
-export const updateSetting = async (setting: string, value: any) => {
+export const updateSetting = async (setting: string, value: string) => {
 	const settingRef = doc(db, "settings", setting);
 	await updateDoc(settingRef, { value });
 };

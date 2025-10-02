@@ -75,29 +75,29 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 	// }, []);
 
 	// Load Timesheet File and output the data
-	const proccessXLSXFile = async (
-		file: File,
-		sheet_name: string,
-	): Promise<any[]> => {
-		return new Promise((resolve, reject) => {
+	const proccessXLSXFile = async (file: File, sheet_name: string) => {
+		return new Promise<unknown[]>((resolve, reject) => {
 			const reader = new FileReader();
 
 			reader.onload = (event) => {
 				if (!event?.target?.result) {
 					reject("No file data");
 				}
+
 				const data = read(event?.target?.result, {
 					type: "binary",
 					cellDates: true,
 					cellNF: false,
 					cellText: false,
 				});
+
 				const sheetData = utils.sheet_to_json(data?.Sheets?.[sheet_name], {
 					raw: false,
 					dateNF: format,
 					defval: null,
 				});
-				resolve(sheetData as any[]);
+
+				resolve(sheetData);
 			};
 
 			reader.readAsBinaryString(file);
@@ -107,7 +107,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 	// Convert Payroll Data to File
 	const worksheetsToWorkBook = async (
 		worksheets: { worksheet: WorkSheet; sheet_name: string }[],
-	): Promise<WorkBook> => {
+	) => {
 		const workbook = utils.book_new();
 		worksheets.forEach((worksheet) => {
 			utils.book_append_sheet(
@@ -119,11 +119,8 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 		return workbook;
 	};
 
-	const convertListToWorkBook = async (
-		data: Record<string, any>[],
-	): Promise<WorkSheet> => {
-		return utils.json_to_sheet(data);
-	};
+	const convertListToWorkBook = async (data: Record<string, unknown>[]) =>
+		utils.json_to_sheet(data);
 
 	// Download WorkBook
 	const downloadWorkBook = async (workbook: WorkBook, filename: string) => {
@@ -134,44 +131,38 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 		timesheetData: NewInputTimesheetEntry[],
 	): (OriginalTimesheetEntry | null)[] => {
 		return timesheetData.map((entry) => {
-			const [regularHours, regularMinutes] = entry["Regular"]
-				?.split(":")
-				.map(Number) || [0, 0];
+			const firstName = entry["First name"];
+			const lastName = entry["Last name"];
 
-			const [dailyOtHours, dailyOtMinutes] = entry["Daily overtime hours"]
-				?.split(":")
-				.map(Number) || [0, 0];
+			const [regularHours = 0, regularMinutes = 0] = (
+				entry.Regular?.split(":") ?? []
+			).map(Number);
+
+			const [dailyOtHours = 0, dailyOtMinutes = 0] = (
+				entry["Daily overtime hours"]?.split(":") ?? []
+			).map(Number);
 
 			if (
 				!entry["Start Date"] ||
-				!entry["In"] ||
+				!entry.In ||
 				!entry["End Date"] ||
-				!entry["Out"]
+				!entry.Out
 			) {
-				// notify.warn(
-				//   `Invalid date/time in entry for ${entry["First name"]} ${entry["Last name"]}`
-				// );
 				return null;
 			}
 
-			if (entry["Type"] === "Unpaid Leave") {
+			if (entry.Type === "Unpaid Leave") {
 				return null;
 			}
 
-			const startTime = moment(`${entry["Start Date"]} ${entry["In"]}`);
-			const endTime = moment(
-				`${entry["End Date"].split(" ")[0]} ${entry["Out"]}`,
-			);
+			const startTime = moment(`${entry["Start Date"]} ${entry.In}`);
+			const endTime = moment(`${entry["End Date"].split(" ")[0]} ${entry.Out}`);
 			if (!startTime.isValid() || !endTime.isValid()) {
-				notify.warn(
-					`Invalid date/time in entry for ${entry["First name"]} ${entry["Last name"]}`,
-				);
-				// return null;
+				notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
 				throw new Error("Invalid date/time");
 			}
 
 			return {
-				// ...entry,
 				"First Name": entry["First name"],
 				"Last Name": entry["Last name"],
 				"Start Time": startTime,
@@ -192,7 +183,7 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 		sheet_name: string,
 	) => {
 		const file = files?.[0] || null;
-		// await uploadFile(file, payRatesFilename);
+		// @ts-expect-error
 		const payRatesData: PayRate[] = await proccessXLSXFile(file, sheet_name);
 		setPayRatesData(payRatesData);
 	};
@@ -202,16 +193,16 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 		sheet_name: string,
 	) => {
 		const file = files?.[0] || null;
-		console.log({ file });
+		// @ts-expect-error
 		const timesheetData: NewInputTimesheetEntry[] = await proccessXLSXFile(
 			file,
 			sheet_name,
 		);
-		console.log({ timesheetData });
+
 		const originalTimesheetData = convertNewTimeSheetToTimesheetEntrys(
 			timesheetData,
 		).filter((e): e is OriginalTimesheetEntry => e !== null);
-		console.log({ originalTimesheetData });
+
 		setTimesheetFilename(file?.name || "");
 		setTimesheetData(originalTimesheetData);
 	};
@@ -230,18 +221,15 @@ export const useFileWorkBookManagment = (): FileWorkBookManagmentType => {
 			{ worksheet: payrollHoursWorkSheet, sheet_name: sheet_name_hours },
 			{ worksheet: payrollDollarsWorkSheet, sheet_name: sheet_name_dollars },
 		]);
-		const newFilename =
-			timesheetFilename.replace(".xlsx", "") + `${fileSuffix}.xlsx`;
-		console.log({ timesheetFilename, newFilename });
-		void downloadWorkBook(payrollWorkBook, newFilename);
+		const newFilename = `${timesheetFilename.replace(".xlsx", "")}${fileSuffix}.xlsx`;
+		return downloadWorkBook(payrollWorkBook, newFilename);
 	};
 
 	return {
 		payRatesData,
-		timesheetData,
-
 		onPayRatesFileInputChange,
+		timesheetData,
 		onTimesheetFileInputChange,
 		onDownloadPayroll,
-	} as FileWorkBookManagmentType;
+	};
 };

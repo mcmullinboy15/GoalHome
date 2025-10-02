@@ -15,7 +15,7 @@ import { format, isDay, toDateRange } from "../utils/utils";
 export const verifyPayrollData = (
 	payRatesData: PayRate[] | null,
 	timesheetData: OriginalTimesheetEntry[],
-): boolean => {
+) => {
 	if (payRatesData && payRatesData.length === 0) {
 		notify.error(
 			"No rows in the provided Pay Rates Data (Pay rates file is now optional)",
@@ -31,12 +31,12 @@ export const verifyPayrollData = (
 
 	// Verify Names
 	const payRatesNames = (payRatesData ?? []).map(
-		(pr) => pr["FIRST"].toUpperCase() + " " + pr["LAST"].toUpperCase(),
+		(pr) => `${pr.FIRST.toUpperCase()} ${pr.LAST.toUpperCase()}`,
 	);
 
 	const timesheetNames = timesheetData.map(
 		(ts) =>
-			ts["First Name"].toUpperCase() + " " + ts["Last Name"].toUpperCase(),
+			`${ts["First Name"].toUpperCase()} ${ts["Last Name"].toUpperCase()}`,
 	);
 
 	const missingPayRates = Array.from(
@@ -87,58 +87,53 @@ export const verifyPayrollData = (
 	return true;
 };
 
+const defaultRow = () => ({
+	day: 0,
+	night: 0,
+	dayot: 0,
+	nightot: 0,
+	pday: 0,
+	pnight: 0,
+	pdayot: 0,
+	pnightot: 0,
+});
+
+type OutputRow = ReturnType<typeof defaultRow>;
+
 export const runPayroll = (
 	payRatesData: PayRate[] | null,
 	timesheet: OriginalTimesheetEntry[],
 	pextra: number = 2,
-): [PayrollRow[], PayrollRow[]] => {
-	// OT
-	// Week
-	// Paddington
-
-	console.log({ timesheet });
-
-	const counts = {} as any;
-
-	// "name":"week":"shift":{day, night, dayot, nightot, pday, pnight, pdayot, pnightot}
-	const summary_minutes = {} as any;
+) => {
+	const counts: Record<string, Record<number, number>> = {};
+	const summary_minutes: Record<
+		string,
+		Record<string, Record<number, OutputRow>>
+	> = {};
 
 	// Loop through each pay rate
 	timesheet.forEach((shift, shiftIndex) => {
-		shift["Start Time"] = moment
-			.utc(shift["Start Time"], format)
-			.clone()
-			.local();
-		shift["End Time"] = moment.utc(shift["End Time"], format).clone().local();
+		const startTime = moment.utc(shift["Start Time"], format).clone().local();
+		const endTime = moment.utc(shift["End Time"], format).clone().local();
 
-		const name = shift["First Name"] + " " + shift["Last Name"];
-		const loc = shift["Schedule"];
+		const name = `${shift["First Name"]} ${shift["Last Name"]}`;
+		const loc = shift.Schedule;
 		const isPaddington = [
-			"Padd Upstairs",
-			"Padd Grave",
-			"Padd Downstairs",
-			"Padd B Grave",
-		].includes(loc);
+			"Padd Upstairs".toLowerCase(),
+			"Padd Grave".toLowerCase(),
+			"Padd Downstairs".toLowerCase(),
+			"Padd B Grave".toLowerCase(),
+		].includes(loc.toLowerCase());
 
-		const range = toDateRange(shift["Start Time"], shift["End Time"]);
+		const range = toDateRange(startTime, endTime);
 		range.forEach((date) => {
 			const isday = isDay(date);
 			const week = date.isoWeek();
 
 			summary_minutes[name] = summary_minutes[name] || {};
 			summary_minutes[name][week] = summary_minutes[name][week] || {};
-			summary_minutes[name][week][shiftIndex] = summary_minutes[name][week][
-				shiftIndex
-			] || {
-				day: 0,
-				night: 0,
-				dayot: 0,
-				nightot: 0,
-				pday: 0,
-				pnight: 0,
-				pdayot: 0,
-				pnightot: 0,
-			};
+			summary_minutes[name][week][shiftIndex] =
+				summary_minutes[name][week][shiftIndex] || defaultRow();
 
 			counts[name] = counts[name] || {};
 			counts[name][week] = counts[name][week] || 0;
@@ -150,9 +145,11 @@ export const runPayroll = (
 			const isOvertime = counts[name][week] > 40 * 60;
 
 			// Determine the key to use for the week
-			const key = ((isPaddington ? "p" : "") +
+			// @ts-expect-error
+			const key: keyof OutputRow =
+				(isPaddington ? "p" : "") +
 				(isday ? "day" : "night") +
-				(isOvertime ? "ot" : "")) as any;
+				(isOvertime ? "ot" : "");
 
 			// Add the date to the week
 			summary_minutes[name][week][shiftIndex][key]++;
@@ -160,46 +157,50 @@ export const runPayroll = (
 	});
 
 	// Loop through summary and get hours
-	const summary_hours = {} as any;
+	const summary_hours: Record<
+		string,
+		Record<string, Record<string, OutputRow>>
+	> = {};
 	Object.keys(summary_minutes).forEach((name) => {
 		Object.keys(summary_minutes[name]).forEach((week) => {
 			Object.keys(summary_minutes[name][week]).forEach((shiftIndex) => {
-				const shift = timesheet[shiftIndex as any];
-				const name = shift["First Name"] + " " + shift["Last Name"];
+				const shiftIndexNum = parseInt(shiftIndex);
+				const shift = timesheet[shiftIndexNum];
+				const name = `${shift["First Name"]} ${shift["Last Name"]}`;
 
 				// Get hours
 				const roundNum = 8;
 				const hours = {
 					day: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].day, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].day, 60),
 						roundNum,
 					),
 					night: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].night, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].night, 60),
 						roundNum,
 					),
 					dayot: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].dayot, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].dayot, 60),
 						roundNum,
 					),
 					nightot: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].nightot, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].nightot, 60),
 						roundNum,
 					),
 					pday: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].pday, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].pday, 60),
 						roundNum,
 					),
 					pnight: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].pnight, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].pnight, 60),
 						roundNum,
 					),
 					pdayot: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].pdayot, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].pdayot, 60),
 						roundNum,
 					),
 					pnightot: _.round(
-						_.divide(summary_minutes[name][week][shiftIndex].pnightot, 60),
+						_.divide(summary_minutes[name][week][shiftIndexNum].pnightot, 60),
 						roundNum,
 					),
 				};
@@ -213,20 +214,12 @@ export const runPayroll = (
 	});
 
 	// Summarize hours to the Week
-	const summary_hours_week = {} as any;
+	const summary_hours_week: Record<string, Record<string, OutputRow>> = {};
 	Object.keys(summary_hours).forEach((name) => {
 		summary_hours_week[name] = summary_hours_week[name] || {};
 		Object.keys(summary_hours[name]).forEach((week) => {
-			summary_hours_week[name][week] = summary_hours_week[name][week] || {
-				day: 0,
-				night: 0,
-				dayot: 0,
-				nightot: 0,
-				pday: 0,
-				pnight: 0,
-				pdayot: 0,
-				pnightot: 0,
-			};
+			summary_hours_week[name][week] =
+				summary_hours_week[name][week] || defaultRow();
 			Object.keys(summary_hours[name][week]).forEach((shiftIndex) => {
 				const shift = summary_hours[name][week][shiftIndex];
 				summary_hours_week[name][week].day += shift.day;
@@ -242,18 +235,9 @@ export const runPayroll = (
 	});
 
 	// Summarize hours to the Pay Rate
-	const summary_payrate = {} as any;
+	const summary_payrate: Record<string, OutputRow> = {};
 	Object.keys(summary_hours).forEach((name) => {
-		summary_payrate[name] = summary_payrate[name] || {
-			day: 0,
-			night: 0,
-			dayot: 0,
-			nightot: 0,
-			pday: 0,
-			pnight: 0,
-			pdayot: 0,
-			pnightot: 0,
-		};
+		summary_payrate[name] = summary_payrate[name] || defaultRow();
 		Object.keys(summary_hours_week[name]).forEach((week) => {
 			const weekObj = summary_hours_week[name][week];
 			summary_payrate[name].day += weekObj.day;
@@ -280,7 +264,7 @@ export const runPayroll = (
 	Object.keys(summary_payrate).forEach((name) => {
 		const shifts = timesheet.filter(
 			(shift) =>
-				(shift["First Name"] + " " + shift["Last Name"]).toUpperCase() ===
+				`${shift["First Name"]} ${shift["Last Name"]}`.toUpperCase() ===
 				name.toUpperCase(),
 		);
 
@@ -351,18 +335,16 @@ export const runPayroll = (
 		 */
 
 		const payRate = payRatesData?.find(
-			(pr) =>
-				(pr["FIRST"] + " " + pr["LAST"]).toUpperCase() === name.toUpperCase(),
+			(pr) => `${pr.FIRST} ${pr.LAST}`.toUpperCase() === name.toUpperCase(),
 		);
 		if (!payRate) {
-			// console.error(`No pay rate found for ${name}`);
 			return;
 		}
 
-		console.log({ payRate, summary_payrate: summary_payrate[name] });
-
-		payRate["Day Rate"] = parseFloat(payRate["Day Rate"] as any);
-		payRate["Night Rate"] = parseFloat(payRate["Night Rate"] as any);
+		// @ts-expect-error
+		payRate["Day Rate"] = parseFloat(payRate["Day Rate"]);
+		// @ts-expect-error
+		payRate["Night Rate"] = parseFloat(payRate["Night Rate"]);
 
 		const day = summary_payrate[name].day * payRate["Day Rate"];
 		const night = summary_payrate[name].night * payRate["Night Rate"];
@@ -381,8 +363,8 @@ export const runPayroll = (
 		const total_dollars = totalreg_dollars + totalot_dollars;
 
 		const dollarsRow: PayrollRow = {
-			firstName: payRate["FIRST"],
-			lastName: payRate["LAST"],
+			firstName: payRate.FIRST,
+			lastName: payRate.LAST,
 			day: _.round(day, 2),
 			night: _.round(night, 2),
 			pday: _.round(pday, 2),
@@ -395,10 +377,12 @@ export const runPayroll = (
 			totalreg: _.round(totalreg_dollars, 2),
 			totalot: _.round(totalot_dollars, 2),
 			total: _.round(total_dollars, 2),
-		} as PayrollRow;
+		};
 
 		payrollDollars.push(dollarsRow);
 	});
+
+	console.log({ payrollHours, payrollDollars });
 
 	return [payrollHours, payrollDollars];
 };
@@ -407,30 +391,32 @@ export const usePayroll = () => {
 	const { payrollHours, payrollDollars, setPayrollHours, setPayrollDollars } =
 		useContext(PayrollContext);
 
+	const handleRunPayroll = (
+		payRatesData: PayRate[] | null,
+		timesheetData: OriginalTimesheetEntry[] | null,
+	) => {
+		if (!timesheetData) {
+			notify.error("Missing Timesheet Data");
+			return [];
+		}
+
+		const isValid = verifyPayrollData(payRatesData, timesheetData);
+		if (!isValid) {
+			return [];
+		}
+
+		const [payrollHours, payrollDollars] = runPayroll(
+			payRatesData,
+			timesheetData,
+		);
+
+		setPayrollHours(payrollHours);
+		setPayrollDollars(payrollDollars);
+	};
+
 	return {
 		payrollHours,
 		payrollDollars,
-		runPayroll: (
-			payRatesData: PayRate[] | null,
-			timesheetData: OriginalTimesheetEntry[] | null,
-		) => {
-			if (!timesheetData) {
-				notify.error("Missing Timesheet Data");
-				return [];
-			}
-
-			const isValid = verifyPayrollData(payRatesData, timesheetData);
-			if (!isValid) {
-				return [];
-			}
-
-			const [payrollHours, payrollDollars] = runPayroll(
-				payRatesData,
-				timesheetData,
-			);
-
-			setPayrollHours(payrollHours);
-			setPayrollDollars(payrollDollars);
-		},
+		runPayroll: handleRunPayroll,
 	};
 };
