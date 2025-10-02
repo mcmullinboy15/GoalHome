@@ -6,22 +6,17 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "npx @biomejs/biome lint",
+    "lint:fix": "npx @biomejs/biome lint --write",
+    "format": "npx @biomejs/biome format",
+    "format:fix": "npx @biomejs/biome format --write"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ],
-    "rules": {
-      "no-restricted-syntax": [
-        "error",
-        {
-          "selector": "TSAsExpression",
-          "message": "Using the 'as' keyword is not allowed. Use angle-bracket syntax instead."
-        }
-      ]
-    }
+    ]
   },
   "browserslist": {
     "production": [
@@ -64,6 +59,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.2.4",
     "@types/lodash": "^4.14.202",
     "@types/uuid": "^9.0.7",
     "@types/xlsx": "^0.0.36",
