@@ -1,16 +1,16 @@
+import _ from "lodash";
+import moment from "moment";
 import { useContext } from "react";
+import { notify } from "../common/notify";
+import { PayrollContext } from "../context/payroll";
 import {
+	NewTimesheetFileHeaders,
+	type OriginalTimesheetEntry,
 	type PayRate,
 	PayRateFileHeaders,
 	type PayrollRow,
-	type OriginalTimesheetEntry,
-	NewTimesheetFileHeaders,
 } from "../utils/types";
 import { format, isDay, toDateRange } from "../utils/utils";
-import { PayrollContext } from "../context/payroll";
-import _ from "lodash";
-import moment from "moment";
-import { notify } from "../common/notify";
 
 export const verifyPayrollData = (
 	payRatesData: PayRate[] | null,
@@ -307,29 +307,27 @@ export const runPayroll = (
 			(a, v) => a + parseFloat(v.Regular ?? 0),
 			0,
 		);
-		// @ts-expect-error
 		const originalOTHours = shifts.reduce(
 			// @ts-expect-error
 			(a, v) => a + parseFloat(v.OT ?? 0),
 			0,
 		);
-		// @ts-expect-error
 		const originalTotalHours = shifts.reduce(
 			// @ts-expect-error
 			(a, v) => a + parseFloat(v.Regular ?? 0) + parseFloat(v.OT ?? 0),
 			0,
 		);
 
-                const diffreg = _.round(totalreg_hours_raw - originalRegularHours, 2);
-                const diffot = _.round(totalot_hours_raw - originalOTHours, 2);
-                const difftotal = _.round(total_hours_raw - originalTotalHours, 2);
+		const diffreg = _.round(totalreg_hours_raw - originalRegularHours, 2);
+		const diffot = _.round(totalot_hours_raw - originalOTHours, 2);
+		const difftotal = _.round(total_hours_raw - originalTotalHours, 2);
 
-                const hoursRow: PayrollRow = {
-                        lastName: shifts[0]["Last Name"],
-                        firstName: shifts[0]["First Name"],
+		const hoursRow: PayrollRow = {
+			lastName: shifts[0]["Last Name"],
+			firstName: shifts[0]["First Name"],
 
-                        day: _.round(payrateSummary.day, 2),
-                        night: _.round(payrateSummary.night, 2),
+			day: _.round(payrateSummary.day, 2),
+			night: _.round(payrateSummary.night, 2),
 			dayot: _.round(payrateSummary.dayot, 2),
 			nightot: _.round(payrateSummary.nightot, 2),
 			pday: _.round(payrateSummary.pday, 2),
@@ -337,14 +335,14 @@ export const runPayroll = (
 			pdayot: _.round(payrateSummary.pdayot, 2),
 			pnightot: _.round(payrateSummary.pnightot, 2),
 
-                        totalreg: totalreg_hours,
-                        totalot: totalot_hours,
-                        total: total_hours,
+			totalreg: totalreg_hours,
+			totalot: totalot_hours,
+			total: total_hours,
 
-                        diffreg: diffreg === 0 ? 0 : diffreg,
-                        diffot: diffot === 0 ? 0 : diffot,
-                        difftotal: difftotal === 0 ? 0 : difftotal,
-                };
+			diffreg: diffreg === 0 ? 0 : diffreg,
+			diffot: diffot === 0 ? 0 : diffot,
+			difftotal: difftotal === 0 ? 0 : difftotal,
+		};
 
 		payrollHours.push(hoursRow);
 
@@ -358,7 +356,7 @@ export const runPayroll = (
 		);
 		if (!payRate) {
 			// console.error(`No pay rate found for ${name}`);
-			return null;
+			return;
 		}
 
 		console.log({ payRate, summary_payrate: summary_payrate[name] });

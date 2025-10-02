@@ -72,7 +72,6 @@ export const Button = (props: ButtonProps) => {
 	const className = handleClassName(props);
 
 	return (
-		// @ts-expect-error
 		<button
 			{...props}
 			className={className}
@@ -80,16 +79,6 @@ export const Button = (props: ButtonProps) => {
 		>
 			{props.children}
 		</button>
-	);
-};
-
-export const Label = (props: LabelProps) => {
-	const className = handleClassName(props);
-
-	return (
-		<label {...props} className={className}>
-			{props.children}
-		</label>
 	);
 };
 
