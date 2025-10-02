@@ -9,12 +9,6 @@ type HTMLButtonProps = React.DetailedHTMLProps<
 >;
 type ButtonProps = HTMLButtonProps & CustomProps;
 
-type HTMLLabelProps = React.DetailedHTMLProps<
-	React.LabelHTMLAttributes<HTMLLabelElement>,
-	HTMLLabelElement
->;
-type LabelProps = HTMLLabelProps & CustomProps;
-
 type HTMLInputProps = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
@@ -72,7 +66,6 @@ export const Button = (props: ButtonProps) => {
 	const className = handleClassName(props);
 
 	return (
-		// @ts-expect-error
 		<button
 			{...props}
 			className={className}
@@ -80,16 +73,6 @@ export const Button = (props: ButtonProps) => {
 		>
 			{props.children}
 		</button>
-	);
-};
-
-export const Label = (props: LabelProps) => {
-	const className = handleClassName(props);
-
-	return (
-		<label {...props} className={className}>
-			{props.children}
-		</label>
 	);
 };
 
@@ -143,7 +126,9 @@ export const Switch = (props: SwitchProps) => {
 	);
 };
 
-export const HoverIconWithLabel = (props: any) => {
+export const HoverIconWithLabel = (
+	props: HTMLButtonProps & { icon: React.ReactNode; label: string },
+) => {
 	const { icon, label, ...rest } = props;
 
 	return (

@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/noNestedComponentDefinitions: Just need it for the column Cells */
 import { useEffect, useMemo, useState } from "react";
 import {
 	MaterialReactTable,
@@ -48,7 +49,7 @@ const Diff = ({
 	}, [textColor, bgColor, value]);
 
 	if (value === 0) {
-		return <></>;
+		return <span className="text-gray-400">-</span>;
 	}
 
 	return (
@@ -74,7 +75,6 @@ type DetailPanelProps = {
 
 const DetailPanel = ({
 	row,
-	table,
 	payRatesData,
 	timesheetData,
 }: DetailPanelProps) => {
@@ -99,11 +99,11 @@ const DetailPanel = ({
 
 		return payRatesData.find(
 			(x) =>
-				x["FIRST"].toUpperCase() ===
+				x.FIRST.toUpperCase() ===
 					(
 						row.getValue(PayrollColumns.FirstName) as PayrollRow["firstName"]
 					).toUpperCase() &&
-				x["LAST"].toUpperCase() ===
+				x.LAST.toUpperCase() ===
 					(
 						row.getValue(PayrollColumns.LastName) as PayrollRow["lastName"]
 					).toUpperCase(),
@@ -184,7 +184,7 @@ const DetailPanel = ({
 				</thead>
 				<tbody className="divide-y divide-gray-200">
 					{timesheetRows.map((shift, index) => (
-						<tr key={index}>
+						<tr key={`${shift["First Name"]} ${index}`}>
 							<td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900 sm:pl-0">
 								{shift["Start Time"].format("MM/DD/YYYY")}
 							</td>
@@ -195,13 +195,13 @@ const DetailPanel = ({
 								{shift["End Time"].format("hh:mm A")}
 							</td>
 							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{!shift["Regular"] ? "-" : shift["Regular"]}
+								{shift.Regular ?? "-"}
 							</td>
 							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{!shift["OT"] ? "-" : shift["OT"]}
+								{shift.OT ?? "-"}
 							</td>
 							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{shift["Schedule"]}
+								{shift.Schedule}
 							</td>
 						</tr>
 					))}
@@ -303,25 +303,31 @@ export const Results = () => {
 				{
 					accessorKey: PayrollColumns.DiffRegular,
 					header: "Diff Regular",
-					accessorFn: (row) => <Diff value={row[PayrollColumns.DiffRegular]} />,
+					Cell: ({ row }) => (
+						<Diff value={row.original[PayrollColumns.DiffRegular]} />
+					),
 				},
 				{
 					accessorKey: PayrollColumns.DiffOT,
 					header: "Diff OT",
-					accessorFn: (row) => <Diff value={row[PayrollColumns.DiffOT]} />,
+					Cell: ({ row }) => (
+						<Diff value={row.original[PayrollColumns.DiffOT]} />
+					),
 				},
 				{
 					accessorKey: PayrollColumns.DiffTotal,
 					header: "Diff Total",
-					accessorFn: (row) => <Diff value={row[PayrollColumns.DiffTotal]} />,
+					Cell: ({ row }) => (
+						<Diff value={row.original[PayrollColumns.DiffTotal]} />
+					),
 				},
 				{
 					accessorKey: PayrollColumns.DiffFix,
 					header: "To Fix",
-					accessorFn: (row) => {
+					Cell: ({ row }) => {
 						if (
-							(row[PayrollColumns.DiffRegular] ?? 0) < 0 &&
-							(row[PayrollColumns.DiffOT] ?? 0) > 0
+							(row.original[PayrollColumns.DiffRegular] ?? 0) < 0 &&
+							(row.original[PayrollColumns.DiffOT] ?? 0) > 0
 						) {
 							// Regular is negative and OT is positive
 							// Therefore the person is missing regular hours or they are in OT
@@ -330,15 +336,15 @@ export const Results = () => {
 								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 									Add
 									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(row[PayrollColumns.DiffRegular] ?? 0)}
+										{Math.abs(row.original[PayrollColumns.DiffRegular] ?? 0)}
 									</span>
 									To
 									<span className="font-bold text-blue-500 ml-1">Reg</span>
 								</span>
 							);
 						} else if (
-							(row[PayrollColumns.DiffRegular] ?? 0) > 0 &&
-							(row[PayrollColumns.DiffOT] ?? 0) < 0
+							(row.original[PayrollColumns.DiffRegular] ?? 0) > 0 &&
+							(row.original[PayrollColumns.DiffOT] ?? 0) < 0
 						) {
 							// Regular is positive and OT is negative
 							// Therefore the person is missing regular hours or they are in OT
@@ -348,7 +354,7 @@ export const Results = () => {
 									<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 										Sub
 										<span className="font-bold text-blue-500 mx-1">
-											{Math.abs(row[PayrollColumns.DiffRegular] ?? 0)}
+											{Math.abs(row.original[PayrollColumns.DiffRegular] ?? 0)}
 										</span>
 										From
 										<span className="font-bold text-blue-500 mx-1">Reg</span>
@@ -358,14 +364,14 @@ export const Results = () => {
 									<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 										Add
 										<span className="font-bold text-blue-500 mx-1">
-											{Math.abs(row[PayrollColumns.DiffOT] ?? 0)}
+											{Math.abs(row.original[PayrollColumns.DiffOT] ?? 0)}
 										</span>
 										To
 										<span className="font-bold text-blue-500 ml-1">OT</span>
 									</span>
 								</>
 							);
-						} else if ((row[PayrollColumns.DiffRegular] ?? 0) < 0) {
+						} else if ((row.original[PayrollColumns.DiffRegular] ?? 0) < 0) {
 							// Regular is negative and OT is 0
 							// Therefore the person is missing regular hours
 							// So add more to regular hours.
@@ -373,13 +379,13 @@ export const Results = () => {
 								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 									Add
 									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(row[PayrollColumns.DiffRegular] ?? 0)}
+										{Math.abs(row.original[PayrollColumns.DiffRegular] ?? 0)}
 									</span>
 									To
 									<span className="font-bold text-blue-500 ml-1">Reg</span>
 								</span>
 							);
-						} else if ((row[PayrollColumns.DiffOT] ?? 0) < 0) {
+						} else if ((row.original[PayrollColumns.DiffOT] ?? 0) < 0) {
 							// OT is negative and Regular is 0
 							// Therefore the person is missing OT hours
 							// So add more to OT hours.
@@ -387,7 +393,7 @@ export const Results = () => {
 								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
 									Add
 									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(row[PayrollColumns.DiffOT] ?? 0)}
+										{Math.abs(row.original[PayrollColumns.DiffOT] ?? 0)}
 									</span>
 									To
 									<span className="font-bold text-blue-500 ml-1">OT</span>
@@ -399,15 +405,7 @@ export const Results = () => {
 			);
 		}
 
-		return x.map((col) => ({
-			...col,
-			accessorFn:
-				col.accessorFn ??
-				((row) =>
-					row[col.accessorKey as keyof PayrollRow] === 0
-						? "-"
-						: row[col.accessorKey as keyof PayrollRow]),
-		}));
+		return x;
 	}, [tableToggle]);
 
 	//pass table options to useMaterialReactTable
@@ -421,6 +419,7 @@ export const Results = () => {
 		enableDensityToggle: false,
 		enableColumnDragging: false,
 		enableBottomToolbar: false,
+		renderFallbackValue: () => "-",
 		defaultColumn: { size: 80 },
 		initialState: {
 			pagination: { pageIndex: 0, pageSize: 100 },
@@ -458,7 +457,7 @@ export const Results = () => {
 			elevation: 0,
 		},
 		muiTableBodyProps: {
-			sx: (theme) => ({
+			sx: () => ({
 				[tableToggle ? "& > tr:nth-of-type(4n+1)" : "& tr:nth-of-type(2n+1)"]: {
 					backgroundColor: "#eee !important",
 				},
