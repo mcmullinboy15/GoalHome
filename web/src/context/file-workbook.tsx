@@ -1,5 +1,5 @@
 import { createContext, useMemo, useState } from "react";
-import { PayRate, OriginalTimesheetEntry } from "../utils/types";
+import type { PayRate, OriginalTimesheetEntry } from "../utils/types";
 
 export type FileWorkBookManagmentType = {
 	payRatesData: PayRate[] | null;

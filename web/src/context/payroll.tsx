@@ -1,5 +1,5 @@
 import { createContext, useMemo, useState } from "react";
-import { PayrollRow } from "../utils/types";
+import type { PayrollRow } from "../utils/types";
 
 type PayrollContextType = {
 	payrollHours: PayrollRow[];

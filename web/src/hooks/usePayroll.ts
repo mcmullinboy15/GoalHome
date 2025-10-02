@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import {
-	PayRate,
+	type PayRate,
 	PayRateFileHeaders,
-	PayrollRow,
-	OriginalTimesheetEntry,
+	type PayrollRow,
+	type OriginalTimesheetEntry,
 	NewTimesheetFileHeaders,
 } from "../utils/types";
 import { format, isDay, toDateRange } from "../utils/utils";
@@ -150,7 +150,7 @@ export const runPayroll = (
 			const isOvertime = counts[name][week] > 40 * 60;
 
 			// Determine the key to use for the week
-			let key = ((isPaddington ? "p" : "") +
+			const key = ((isPaddington ? "p" : "") +
 				(isday ? "day" : "night") +
 				(isOvertime ? "ot" : "")) as any;
 
@@ -349,19 +349,19 @@ export const runPayroll = (
 		const total_hours = _.round(totalreg_hours + totalot_hours, 2);
 
 		const originalRegularHours = shifts.reduce(
-			// @ts-ignore
+			// @ts-expect-error
 			(a, v) => a + parseFloat(v.Regular ?? 0),
 			0,
 		);
-		// @ts-ignore
+		// @ts-expect-error
 		const originalOTHours = shifts.reduce(
-			// @ts-ignore
+			// @ts-expect-error
 			(a, v) => a + parseFloat(v.OT ?? 0),
 			0,
 		);
-		// @ts-ignore
+		// @ts-expect-error
 		const originalTotalHours = shifts.reduce(
-			// @ts-ignore
+			// @ts-expect-error
 			(a, v) => a + parseFloat(v.Regular ?? 0) + parseFloat(v.OT ?? 0),
 			0,
 		);

@@ -1,6 +1,6 @@
 import { Button, Input } from "../components";
-import { Modal, ModalController } from "./useModal";
-import { Settings as SettingsType } from "../utils/types";
+import { Modal, type ModalController } from "./useModal";
+import type { Settings as SettingsType } from "../utils/types";
 import { Settings } from "@mui/icons-material";
 
 type Props = {

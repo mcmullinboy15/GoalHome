@@ -8,7 +8,7 @@ import {
 	getDoc,
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Settings } from "../utils/types";
+import type { Settings } from "../utils/types";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {

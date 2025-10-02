@@ -9,7 +9,7 @@ import {
 	render,
 	renderHook,
 	fireEvent,
-	RenderHookResult,
+	type RenderHookResult,
 } from "@testing-library/react";
 import { App } from "../App";
 import { NotificationProvider } from "../common/notify";
@@ -40,7 +40,7 @@ describe("Test Hooks", () => {
 
 		await act(async () =>
 			fileWoorkBookManagmentHook.result.current.onPayRatesFileInputChange(
-				// @ts-ignore
+				// @ts-expect-error
 				[payRatesFile],
 				settingHook.result.current.settings.payRatesSheetName,
 			),
@@ -48,7 +48,7 @@ describe("Test Hooks", () => {
 
 		await act(async () =>
 			fileWoorkBookManagmentHook.result.current.onTimesheetFileInputChange(
-				// @ts-ignore
+				// @ts-expect-error
 				[timesheetFile],
 				settingHook.result.current.settings.timesheetSheetName,
 			),

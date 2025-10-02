@@ -1,17 +1,15 @@
+import moment from "moment/moment";
 import { useContext } from "react";
-import { WorkBook, WorkSheet, read, utils, writeFile } from "xlsx";
-import {
+import { read, utils, type WorkBook, type WorkSheet, writeFile } from "xlsx";
+import { FileWorkBookContext } from "../context/file-workbook";
+import { notify } from "../notify";
+import type {
+	NewInputTimesheetEntry,
+	OriginalTimesheetEntry,
 	PayRate,
 	PayrollRow,
-	OriginalTimesheetEntry,
-	NewInputTimesheetEntry,
 } from "../utils/types";
 import { format } from "../utils/utils";
-import { FileWorkBookContext } from "../context/file-workbook";
-// import { uploadFile } from "../common/firebase";
-// import { useSettings } from "./useSettings";
-import moment from "moment/moment";
-import { notify } from "../notify";
 
 type FileWorkBookManagmentType = {
 	payRatesData: PayRate[] | null;

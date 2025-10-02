@@ -2,17 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import {
 	MaterialReactTable,
 	useMaterialReactTable,
-	MRT_ColumnDef,
-	MRT_TableInstance,
-	MRT_Row,
+	type MRT_ColumnDef,
+	type MRT_TableInstance,
+	type MRT_Row,
 } from "material-react-table";
 import { AccessTime, AttachMoney, Download } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import {
-	PayRate,
+	type PayRate,
 	PayrollColumns,
-	PayrollRow,
-	OriginalTimesheetEntry,
+	type PayrollRow,
+	type OriginalTimesheetEntry,
 } from "../utils/types";
 import { useFileWorkBookManagment } from "../hooks/useFileWorkBookManagment";
 import { usePayroll } from "../hooks/usePayroll";

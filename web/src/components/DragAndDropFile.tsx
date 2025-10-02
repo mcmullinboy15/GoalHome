@@ -1,8 +1,8 @@
 import {
-	ChangeEvent,
-	DragEvent,
-	FC,
-	ReactNode,
+	type ChangeEvent,
+	type DragEvent,
+	type FC,
+	type ReactNode,
 	useCallback,
 	useState,
 } from "react";
@@ -114,7 +114,7 @@ export const DragAndDropFile: FC<DragAndDropFileProps> = ({
 					multiple={multiple}
 					disabled={disabled}
 					accept={accept}
-					// @ts-ignore
+					// @ts-expect-error
 					webkitdirectory={multiple ? "" : undefined}
 				/>
 				{label}

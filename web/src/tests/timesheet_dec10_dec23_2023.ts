@@ -1,4 +1,4 @@
-import { PayrollRow, OriginalTimesheetEntry } from "../utils/types";
+import type { PayrollRow, OriginalTimesheetEntry } from "../utils/types";
 import moment from "moment";
 
 export const dataTestMinutes = [

@@ -39,8 +39,8 @@ describe.each([
 
 	test.each(dates)("%s", (date) => {
 		const count = dates.indexOf(date) + dow;
-		let expected = Math.floor(count / 7);
-		let week = date.isoWeek();
+		const expected = Math.floor(count / 7);
+		const week = date.isoWeek();
 
 		if (expected === 53) {
 			expect(week).toBe(1);

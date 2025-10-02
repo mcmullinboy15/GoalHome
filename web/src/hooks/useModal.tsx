@@ -1,4 +1,4 @@
-import { FC, ReactNode, useCallback, useState } from "react";
+import { type FC, type ReactNode, useCallback, useState } from "react";
 
 import { Button } from "../components";
 

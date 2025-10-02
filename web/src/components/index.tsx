@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Switch as HeadlessSwitch } from "@headlessui/react";
 import IconButton from "@mui/material/IconButton";
 
@@ -71,7 +72,7 @@ export const Button = (props: ButtonProps) => {
 	const className = handleClassName(props);
 
 	return (
-		// @ts-ignore
+		// @ts-expect-error
 		<button
 			{...props}
 			className={className}

@@ -3,7 +3,7 @@ import moment from "moment";
 export const format = "MM-DD-YYYY HH:mm:ss";
 
 const _isoWeek = moment.fn.isoWeek;
-// @ts-ignore
+// @ts-expect-error
 moment.fn.isoWeek = function (week: number) {
 	var out: number = _isoWeek.call(this, week) as any;
 	if (this.day() === 0) out += 1;
@@ -17,7 +17,7 @@ export const toDateRange = (
 	end: moment.Moment,
 	interval: "days" | "hours" | "minutes" = "minutes",
 ): moment.Moment[] => {
-	let dates: moment.Moment[] = [];
+	const dates: moment.Moment[] = [];
 	start = start.clone().startOf(interval);
 	end = end.clone().startOf(interval);
 
