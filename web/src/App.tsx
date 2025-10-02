@@ -24,10 +24,10 @@ export const App = () => {
 				</p>
 
 				<a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
-					<Button variant="outlined">mcmullinand@gmail.com</Button>
+					<Butgton variant="outlined">mcmullinand@gmail.com</Butgton>
 				</a>
 
-				<p className="text-gray-400 font-mono text-xs">v2.0.0</p>
+				<p className="text-gray-400 font-mono text-xs">v2.0.1</p>
 			</footer>
 
 			{/* <SettingsModal {...settingsController} settings={settings} /> */}
