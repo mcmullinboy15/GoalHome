@@ -128,7 +128,7 @@ export type PayrollEntry = {
 };
 
 export type PayrollRow = PayrollEntry & {
-	// totalreg: number;
+	totalreg: number;
 	totalot: number;
 	total: number;
 	diffreg?: number;
