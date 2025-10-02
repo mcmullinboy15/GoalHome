@@ -31,7 +31,7 @@ const Diff = ({
 	bgColor: _bgColor,
 	value: _value,
 }: DiffProps) => {
-	const [value] = useState(_value ?? 0);
+	const [value] = useState(_value && !Number.isNaN(_value) ? _value : 0);
 	const [textColor, setTextColor] = useState(_textColor);
 	const [bgColor, setBgColor] = useState(_bgColor);
 
@@ -405,7 +405,15 @@ export const Results = () => {
 			);
 		}
 
-		return x;
+		return x.map((col) => {
+			col.Cell =
+				col.Cell ??
+				(({ cell }) => {
+					const num = cell.getValue<number>();
+					return !num || Number.isNaN(num) || num === 0 ? "-" : num;
+				});
+			return col;
+		});
 	}, [tableToggle]);
 
 	//pass table options to useMaterialReactTable
