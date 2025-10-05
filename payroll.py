@@ -309,13 +309,8 @@ def _main(args):
     # Calc Diff
     sheet_hours = sheet.groupby(["Last Name", "First Name"], group_keys=True)[["Regular", "OT"]].sum(numeric_only=True)
     sheet_hours["Total"] = sheet_hours.sum(axis=1, numeric_only=True)
-    # The regular hour total should exclude overtime. Summing the "Day" and "Night"
-    # columns directly was double-counting the OT portions because the grouped
-    # dataframe already has overtime split out into the "Total OT" column.
-    # Instead, derive the regular total by subtracting overtime from the overall
-    # hours to ensure OT is not included twice.
-    d["Total Regular"] = (d["Total Hours"] - d["Total OT"]).round(2)
-
+    d["Total Regular"] = d[["Day", "Paddington Day", "Night", "Paddington Night"]].sum(axis=1, numeric_only=True)
+gs
     hours_output["Diff Regular"] = (d["Total Regular"] - sheet_hours["Regular"]).round(2)
     hours_output["Diff OT"]      = (d["Total OT"]      - sheet_hours["OT"]).round(2)
     hours_output["Diff Total"]   = (d["Total Hours"]   - sheet_hours["Total"]).round(2)
