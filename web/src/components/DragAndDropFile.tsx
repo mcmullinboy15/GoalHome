@@ -1,17 +1,10 @@
-import {
-	type ChangeEvent,
-	type DragEvent,
-	type FC,
-	type ReactNode,
-	useCallback,
-	useState,
-} from "react";
+import { type ChangeEvent, type DragEvent, type FC, type ReactNode, useCallback, useState } from "react";
 
 type DragAndDropFileProps = {
 	name: string;
 	label: ReactNode;
 	isLoaded: boolean;
-	onInput: (value: FileList) => void;
+	onInput: (value: File[]) => void;
 	accept?: string;
 	disabled?: boolean;
 	multiple?: boolean;
@@ -50,9 +43,7 @@ export const DragAndDropFile: FC<DragAndDropFileProps> = ({
 		(e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			if (!dragging) {
-				setDragging(true);
-			}
+			if (!dragging) setDragging(true);
 		},
 		[dragging],
 	);
@@ -63,7 +54,7 @@ export const DragAndDropFile: FC<DragAndDropFileProps> = ({
 			e.stopPropagation();
 			setDragging(false);
 			if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-				onInput(e.dataTransfer.files);
+				onInput(Array.from(e.dataTransfer.files));
 				e.dataTransfer.clearData();
 			}
 		},
@@ -76,11 +67,8 @@ export const DragAndDropFile: FC<DragAndDropFileProps> = ({
 			e.stopPropagation();
 			setDragging(false);
 
-			const target = e.target as HTMLInputElement & {
-				files: FileList;
-			};
-			if (target.files && target.files.length > 0) {
-				onInput(target.files);
+			if (e.target.files && e.target.files.length > 0) {
+				onInput(Array.from(e.target.files));
 			}
 		},
 		[onInput],

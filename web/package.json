@@ -7,6 +7,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "check:all": "concurrently \"npm run check:fix\" \"npm run tsc\"",
     "tsc": "tsc",
     "check": "npx @biomejs/biome check",
     "check:fix": "npx @biomejs/biome check --write",
@@ -14,12 +15,6 @@
     "lint:fix": "npx @biomejs/biome lint --write",
     "format": "npx @biomejs/biome format",
     "format:fix": "npx @biomejs/biome format --write"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -66,6 +61,8 @@
     "@types/lodash": "^4.14.202",
     "@types/uuid": "^9.0.7",
     "@types/xlsx": "^0.0.36",
+    "@typescript/native-preview": "^7.0.0-dev.20251005.1",
+    "concurrently": "^9.2.1",
     "tailwindcss": "^3.4.1"
   }
 }

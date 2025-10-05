@@ -1,24 +1,15 @@
 import moment from "moment";
-import { runPayroll } from "../hooks/usePayroll";
+import { calculatePayrollHours } from "../context/payroll-logic";
 import { isDay, isNight, toDateRange } from "../utils/utils";
-import {
-	payRateTestDataConverted,
-	payrollTestData,
-	timesheetTestDataConverted,
-} from "./timesheet_dec10_dec23_2023";
+import { payrollTestData, timesheetTestDataConverted } from "./timesheet_dec10_dec23_2023";
 
 describe("usePayroll", () => {
 	test("runPayroll", () => {
-		const [payrollHours] = runPayroll(
-			payRateTestDataConverted,
-			timesheetTestDataConverted,
-		);
+		const payrollHours = calculatePayrollHours(timesheetTestDataConverted);
 
 		payrollHours.forEach((payrollItem) => {
 			const testItem = payrollTestData.find(
-				(item) =>
-					item.firstName === payrollItem.firstName &&
-					item.lastName === payrollItem.lastName,
+				(item) => item.firstName === payrollItem.firstName && item.lastName === payrollItem.lastName,
 			);
 			expect(testItem).toMatchObject(payrollItem);
 		});
@@ -75,54 +66,16 @@ describe("toDateRange", () => {
 	});
 
 	test("other to date range", () => {
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-01-01T00:00:10"),
-			),
-		).toHaveLength(0);
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-01-01T00:00:59"),
-			),
-		).toHaveLength(0);
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-01-01T00:01:00"),
-			),
-		).toHaveLength(1);
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-01-01T00:10:00"),
-			),
-		).toHaveLength(10);
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-01-01T01:00:00"),
-			),
-		).toHaveLength(60);
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-01-01T10:00:00"),
-			),
-		).toHaveLength(60 * 10);
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-01-02T00:00:00"),
-			),
-		).toHaveLength(24 * 60);
-		expect(
-			toDateRange(
-				moment.utc("2021-01-01T00:00:00"),
-				moment.utc("2021-02-01T00:00:00"),
-			),
-		).toHaveLength(31 * 24 * 60);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-01-01T00:00:10"))).toHaveLength(0);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-01-01T00:00:59"))).toHaveLength(0);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-01-01T00:01:00"))).toHaveLength(1);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-01-01T00:10:00"))).toHaveLength(10);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-01-01T01:00:00"))).toHaveLength(60);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-01-01T10:00:00"))).toHaveLength(60 * 10);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-01-02T00:00:00"))).toHaveLength(24 * 60);
+		expect(toDateRange(moment.utc("2021-01-01T00:00:00"), moment.utc("2021-02-01T00:00:00"))).toHaveLength(
+			31 * 24 * 60,
+		);
 	});
 
 	test("Abby Ehiede First shift Date Range Size", () => {
@@ -138,11 +91,9 @@ describe("toDateRange", () => {
 			moment.utc("2023-12-12T21:55:00"),
 			moment.utc("2023-12-13T09:48:00"),
 		);
-		expect(
-			firstDateRangeByAbbyEhiede[
-				firstDateRangeByAbbyEhiede.length - 1
-			].toISOString(),
-		).toEqual(moment.utc("2023-12-13T09:47:00").toISOString());
+		expect(firstDateRangeByAbbyEhiede[firstDateRangeByAbbyEhiede.length - 1].toISOString()).toEqual(
+			moment.utc("2023-12-13T09:47:00").toISOString(),
+		);
 	});
 });
 

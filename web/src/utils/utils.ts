@@ -30,7 +30,5 @@ export const toDateRange = (
 	return dates;
 };
 
-export const isDay = (date: moment.Moment) =>
-	date.hour() >= 6 && date.hour() < 22;
-export const isNight = (date: moment.Moment) =>
-	date.hour() < 6 || date.hour() >= 22;
+export const isDay = (date: moment.Moment) => date.hour() >= 6 && date.hour() < 22;
+export const isNight = (date: moment.Moment) => date.hour() < 6 || date.hour() >= 22;

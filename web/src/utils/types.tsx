@@ -1,42 +1,6 @@
 import type moment from "moment";
 
-export type Settings = {
-	payRatesSheetName: string;
-	timesheetSheetName: string;
-	payrollSuffix: string;
-	payrollHoursSheetName: string;
-	payrollPaySheetName: string;
-};
-
-export type PayRate = {
-	LAST: string;
-	FIRST: string;
-	"Day Rate": number;
-	"Night Rate": number;
-};
-
 export type NewInputTimesheetEntry = {
-	// "First name": string;
-	// "Last name": string;
-	// Job: string;
-	// // "Start Date": moment.Moment;
-	// // "Start time": moment.Moment;
-	// // "End time": moment.Moment;
-
-	// "Start Date": moment.Moment;
-	// In: moment.Moment;
-	// "End Date": moment.Moment;
-	// Out: moment.Moment;
-
-	// "Shift hours"?: number;
-	// "Daily total hours": number;
-	// Regular: number;
-	// "Daily overtime hours": number;
-	// "Weekly total hours": number;
-	// "Total work hours": number;
-	// "Total Regular": number;
-	// "Total overtime hours": number;
-
 	"Daily total hours": string | null; // "04:00"
 	"Employee notes": string | null;
 	"End Date": string | null; // "08/30/2025"
@@ -135,8 +99,6 @@ export type PayrollRow = PayrollEntry & {
 	diffot?: number;
 	difftotal?: number;
 };
-
-export const PayRateFileHeaders = ["LAST", "FIRST", "Day Rate", "Night Rate"];
 
 // Moved the 4 dates over and renamed Job to Type
 

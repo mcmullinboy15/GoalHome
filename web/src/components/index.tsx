@@ -3,22 +3,13 @@ import IconButton from "@mui/material/IconButton";
 import type React from "react";
 import { useState } from "react";
 
-type HTMLButtonProps = React.DetailedHTMLProps<
-	React.ButtonHTMLAttributes<HTMLButtonElement>,
-	HTMLButtonElement
->;
+type HTMLButtonProps = React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>;
 type ButtonProps = HTMLButtonProps & CustomProps;
 
-type HTMLInputProps = React.DetailedHTMLProps<
-	React.InputHTMLAttributes<HTMLInputElement>,
-	HTMLInputElement
->;
+type HTMLInputProps = React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 type InputProps = HTMLInputProps & CustomProps;
 
-type HTMLSelectProps = React.DetailedHTMLProps<
-	React.SelectHTMLAttributes<HTMLSelectElement>,
-	HTMLSelectElement
->;
+type HTMLSelectProps = React.DetailedHTMLProps<React.SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
 type SelectProps = HTMLSelectProps & CustomProps;
 
 type SwitchProps = {
@@ -40,9 +31,7 @@ export function classNames(...classes: string[]) {
 }
 
 const handleClassName = (props: CustomProps) => {
-	let className =
-		"text-white cursor-pointer font-bold font-mono py-1 px-2 rounded-lg " +
-		(props.className || "");
+	let className = `text-white cursor-pointer font-bold font-mono py-1 px-2 rounded-lg ${props.className || ""}`;
 
 	if (props.disabled) {
 		className += " opacity-50 cursor-not-allowed";
@@ -66,11 +55,7 @@ export const Button = (props: ButtonProps) => {
 	const className = handleClassName(props);
 
 	return (
-		<button
-			{...props}
-			className={className}
-			data-testid={props.id ?? props.name}
-		>
+		<button {...props} className={className} data-testid={props.id ?? props.name}>
 			{props.children}
 		</button>
 	);
@@ -79,25 +64,13 @@ export const Button = (props: ButtonProps) => {
 export const Input = (props: InputProps) => {
 	const className = handleClassName(props);
 
-	return (
-		<input
-			{...props}
-			className={className}
-			data-testid={props.id ?? props.name}
-		/>
-	);
+	return <input {...props} className={className} data-testid={props.id ?? props.name} />;
 };
 
 export const Select = (props: SelectProps) => {
 	const className = handleClassName(props);
 
-	return (
-		<select
-			{...props}
-			className={className}
-			data-testid={props.id ?? props.name}
-		/>
-	);
+	return <select {...props} className={className} data-testid={props.id ?? props.name} />;
 };
 
 export const Switch = (props: SwitchProps) => {
@@ -126,9 +99,7 @@ export const Switch = (props: SwitchProps) => {
 	);
 };
 
-export const HoverIconWithLabel = (
-	props: HTMLButtonProps & { icon: React.ReactNode; label: string },
-) => {
+export const HoverIconWithLabel = (props: HTMLButtonProps & { icon: React.ReactNode; label: string }) => {
 	const { icon, label, ...rest } = props;
 
 	return (

@@ -1,73 +1,35 @@
-import {
-	act,
-	fireEvent,
-	type RenderHookResult,
-	render,
-	renderHook,
-	screen,
-} from "@testing-library/react";
+import { act, fireEvent, type RenderHookResult, render, renderHook, screen } from "@testing-library/react";
 import fs from "fs/promises";
 import React from "react";
 import { App } from "../App";
 import { NotificationProvider } from "../common/notify";
-import { useFileWorkBookManagment } from "../hooks/useFileWorkBookManagment";
-import { usePayroll } from "../hooks/usePayroll";
-import { useSettings } from "../hooks/useSettings";
+import { usePayroll } from "../context/payroll";
+import { useFileWorkBook } from "../hooks/useFileWorkBookManagment";
+import { settings } from "../utils/settings";
 
 describe("Test Hooks", () => {
 	let runPayrollHook: RenderHookResult<ReturnType<typeof usePayroll>, unknown>;
-	let fileWoorkBookManagmentHook: RenderHookResult<
-		ReturnType<typeof useFileWorkBookManagment>,
-		unknown
-	>;
-	let settingHook: RenderHookResult<ReturnType<typeof useSettings>, unknown>;
+	let fileWoorkBookManagmentHook: RenderHookResult<ReturnType<typeof useFileWorkBook>, unknown>;
 
 	beforeEach(() => {
 		runPayrollHook = renderHook(() => usePayroll());
-		fileWoorkBookManagmentHook = renderHook(() => useFileWorkBookManagment());
-		settingHook = renderHook(() => useSettings());
+		fileWoorkBookManagmentHook = renderHook(() => useFileWorkBook());
 	});
 
 	test("payroll is run correctly", async () => {
-		const payRatesBuffer = await fs.readFile("src/tests/pay-rate.xlsx");
-		const payRatesFile = new File([payRatesBuffer], "pay-rates.xlsx", {
-			type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-		});
 		const timesheetBuffer = await fs.readFile("src/tests/timesheets.xlsx");
 		const timesheetFile = new File([timesheetBuffer], "timesheets.xlsx", {
 			type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		});
 
 		await act(async () =>
-			fileWoorkBookManagmentHook.result.current.onPayRatesFileInputChange(
-				// @ts-expect-error
-				[payRatesFile],
-				settingHook.result.current.settings.payRatesSheetName,
-			),
-		);
-
-		await act(async () =>
 			fileWoorkBookManagmentHook.result.current.onTimesheetFileInputChange(
-				// @ts-expect-error
 				[timesheetFile],
-				settingHook.result.current.settings.timesheetSheetName,
+				settings.timesheetSheetName,
 			),
 		);
-		console.log(
-			"Pay Rates Data",
-			fileWoorkBookManagmentHook.result.current.payRatesData,
-		);
-		await act(async () =>
-			runPayrollHook.result.current.runPayroll(
-				fileWoorkBookManagmentHook.result.current.payRatesData,
-				fileWoorkBookManagmentHook.result.current.timesheetData,
-			),
-		);
-		console.log("Pay Roll Data", runPayrollHook.result.current.payrollHours);
-	});
 
-	afterAll(() => {
-		console.log("Done");
+		await act(async () => runPayrollHook.result.current.run(fileWoorkBookManagmentHook.result.current.timesheetData));
 	});
 });
 
@@ -96,19 +58,19 @@ describe.skip("Test App", () => {
 		const payRatesFileInput = screen.getByTestId("pay-rates");
 		expect(payRatesFileInput).toBeInTheDocument();
 		fireEvent.change(payRatesFileInput, { target: { files: [payRatesFile] } });
+
 		const timesheetFileInput = screen.getByTestId("timesheet");
 		expect(timesheetFileInput).toBeInTheDocument();
-		fireEvent.change(timesheetFileInput, {
-			target: { files: [timesheetFile] },
-		});
+		fireEvent.change(timesheetFileInput, { target: { files: [timesheetFile] } });
+
 		const runPayrollButton = screen.getByTestId("run-payroll");
 		expect(runPayrollButton).toBeInTheDocument();
+
 		const payrollRan = fireEvent.click(runPayrollButton);
 		expect(payrollRan).toBeTruthy();
 	});
 
 	afterAll(() => {
 		renderedComponent.unmount();
-		console.log("Done");
 	});
 });
