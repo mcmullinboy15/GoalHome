@@ -9,7 +9,7 @@ import {
 
 describe("usePayroll", () => {
 	test("runPayroll", () => {
-		const [payrollHours, payrollDollars] = runPayroll(
+		const [payrollHours] = runPayroll(
 			payRateTestDataConverted,
 			timesheetTestDataConverted,
 		);

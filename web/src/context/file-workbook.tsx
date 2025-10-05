@@ -1,3 +1,4 @@
+import type React from "react";
 import { createContext, useMemo, useState } from "react";
 import type { PayRate, OriginalTimesheetEntry } from "../utils/types";
 
@@ -14,7 +15,7 @@ const FileWorkBookContext = createContext<
 	FileWorkBookManagmentType | undefined
 >(undefined);
 
-const FileWorkBookProvider = ({ children }: any): any => {
+const FileWorkBookProvider = ({ children }: { children: React.ReactNode }) => {
 	const [payRatesData, setPayRatesData] = useState<PayRate[] | null>(null);
 	const [timesheetData, setTimesheetData] = useState<
 		OriginalTimesheetEntry[] | null

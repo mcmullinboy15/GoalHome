@@ -1,3 +1,4 @@
+import type React from "react";
 import { createContext, useMemo, useState } from "react";
 import type { PayrollRow } from "../utils/types";
 
@@ -15,7 +16,7 @@ const PayrollContext = createContext<PayrollContextType>({
 	setPayrollDollars: () => {},
 });
 
-const RunPayrollProvider = ({ children }: any): any => {
+const RunPayrollProvider = ({ children }: { children: React.ReactNode }) => {
 	const [payrollHours, setPayrollHours] = useState<PayrollRow[]>([]);
 	const [payrollDollars, setPayrollDollars] = useState<PayrollRow[]>([]);
 
