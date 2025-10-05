@@ -174,7 +174,7 @@ const getShiftDurationHours = (shift: OriginalTimesheetEntry): number | null => 
         return minutes / 60;
 };
 
-const calculateOriginalShiftHours = (shift: OriginalTimesheetEntry) => {
+export const calculateOriginalShiftHours = (shift: OriginalTimesheetEntry) => {
         const regularRaw = parseTimesheetHours(shift.Regular);
         const overtimeRaw = parseTimesheetHours(shift.OT);
 
@@ -211,13 +211,6 @@ const calculateOriginalShiftHours = (shift: OriginalTimesheetEntry) => {
         ) {
                 return {
                         regular: regularRaw,
-                        overtime: overtimeRaw,
-                };
-        }
-
-        if (regularRaw > overtimeRaw) {
-                return {
-                        regular: regularRaw - overtimeRaw,
                         overtime: overtimeRaw,
                 };
         }

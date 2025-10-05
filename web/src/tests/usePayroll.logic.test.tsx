@@ -1,5 +1,5 @@
 import moment from "moment";
-import { runPayroll } from "../hooks/usePayroll";
+import { calculateOriginalShiftHours, runPayroll } from "../hooks/usePayroll";
 import { isDay, isNight, toDateRange } from "../utils/utils";
 import {
 	payrollTestData,
@@ -59,6 +59,23 @@ describe("usePayroll", () => {
                 expect(row.diffreg).toBe(0);
                 expect(row.diffot).toBe(0);
                 expect(row.difftotal).toBe(0);
+        });
+
+        test("calculateOriginalShiftHours respects provided regular hours when duration unknown", () => {
+                const shift = {
+                        "First Name": "Test",
+                        "Last Name": "User",
+                        "Start Time": moment.invalid(),
+                        "End Time": moment.invalid(),
+                        Regular: 40,
+                        OT: 5,
+                        Schedule: "South Jordan",
+                } as const;
+
+                const totals = calculateOriginalShiftHours(shift);
+
+                expect(totals.regular).toBe(40);
+                expect(totals.overtime).toBe(5);
         });
 });
 
