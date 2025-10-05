@@ -280,10 +280,10 @@ export const runPayroll = (
 			payrateSummary.nightot +
 			payrateSummary.pdayot +
 			payrateSummary.pnightot;
+		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 
 		const totalot_hours = _.round(totalot_hours_raw, 2);
 		const totalreg_hours = _.round(totalreg_hours_raw, 2);
-		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 		const total_hours = _.round(total_hours_raw, 2);
 
 		const originalOTHours = shifts.reduce(
@@ -323,6 +323,7 @@ export const runPayroll = (
 			diffot: diffot === 0 ? 0 : diffot,
 			difftotal: difftotal === 0 ? 0 : difftotal,
 		};
+
 		if (name.includes("Clara")) {
 			console.log({ diffreg, totalreg_hours_raw, originalRegularHours });
 			console.log({ diffot, totalot_hours_raw, originalOTHours });
