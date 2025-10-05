@@ -1,6 +1,6 @@
 import type React from "react";
 import { createContext, useMemo, useState } from "react";
-import type { PayRate, OriginalTimesheetEntry } from "../utils/types";
+import type { OriginalTimesheetEntry, PayRate } from "../utils/types";
 
 export type FileWorkBookManagmentType = {
 	payRatesData: PayRate[] | null;

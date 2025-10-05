@@ -1,24 +1,25 @@
 /** biome-ignore-all lint/correctness/noNestedComponentDefinitions: Just need it for the column Cells */
-import { useEffect, useMemo, useState } from "react";
-import {
-	MaterialReactTable,
-	useMaterialReactTable,
-	type MRT_ColumnDef,
-	type MRT_TableInstance,
-	type MRT_Row,
-} from "material-react-table";
+
 import { AccessTime, AttachMoney, Download } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import {
-	type PayRate,
-	PayrollColumns,
-	type PayrollRow,
-	type OriginalTimesheetEntry,
-} from "../utils/types";
+	MaterialReactTable,
+	type MRT_ColumnDef,
+	type MRT_Row,
+	type MRT_TableInstance,
+	useMaterialReactTable,
+} from "material-react-table";
+import { useEffect, useMemo, useState } from "react";
 import { useFileWorkBookManagment } from "../hooks/useFileWorkBookManagment";
 import { usePayroll } from "../hooks/usePayroll";
 import { useSettings } from "../hooks/useSettings";
 import { notify } from "../notify";
+import {
+	type OriginalTimesheetEntry,
+	type PayRate,
+	PayrollColumns,
+	type PayrollRow,
+} from "../utils/types";
 
 type DiffProps = {
 	textColor?: string;

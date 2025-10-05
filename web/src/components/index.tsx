@@ -1,7 +1,7 @@
-import type React from "react";
-import { useState } from "react";
 import { Switch as HeadlessSwitch } from "@headlessui/react";
 import IconButton from "@mui/material/IconButton";
+import type React from "react";
+import { useState } from "react";
 
 type HTMLButtonProps = React.DetailedHTMLProps<
 	React.ButtonHTMLAttributes<HTMLButtonElement>,

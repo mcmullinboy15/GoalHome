@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import reportWebVitals from "./reportWebVitals";
-import { NotificationProvider } from "./common/notify";
 import { RouterProvider } from "react-router-dom";
+import { NotificationProvider } from "./common/notify";
 import { router } from "./common/router";
-import { RunPayrollProvider } from "./context/payroll";
 import { FileWorkBookProvider } from "./context/file-workbook";
+import { RunPayrollProvider } from "./context/payroll";
+import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement,
