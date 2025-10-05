@@ -310,7 +310,7 @@ def _main(args):
     sheet_hours = sheet.groupby(["Last Name", "First Name"], group_keys=True)[["Regular", "OT"]].sum(numeric_only=True)
     sheet_hours["Total"] = sheet_hours.sum(axis=1, numeric_only=True)
     d["Total Regular"] = d[["Day", "Paddington Day", "Night", "Paddington Night"]].sum(axis=1, numeric_only=True)
-gs
+
     hours_output["Diff Regular"] = (d["Total Regular"] - sheet_hours["Regular"]).round(2)
     hours_output["Diff OT"]      = (d["Total OT"]      - sheet_hours["OT"]).round(2)
     hours_output["Diff Total"]   = (d["Total Hours"]   - sheet_hours["Total"]).round(2)
