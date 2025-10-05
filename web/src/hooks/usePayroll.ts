@@ -270,16 +270,16 @@ export const runPayroll = (
 
 		const payrateSummary = summary_payrate[name];
 
-		const totalot_hours_raw =
-			payrateSummary.dayot +
-			payrateSummary.nightot +
-			payrateSummary.pdayot +
-			payrateSummary.pnightot;
 		const totalreg_hours_raw =
 			payrateSummary.day +
 			payrateSummary.night +
 			payrateSummary.pday +
 			payrateSummary.pnight;
+		const totalot_hours_raw =
+			payrateSummary.dayot +
+			payrateSummary.nightot +
+			payrateSummary.pdayot +
+			payrateSummary.pnightot;
 		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 
 		const totalot_hours = _.round(totalot_hours_raw, 2);
@@ -298,7 +298,7 @@ export const runPayroll = (
 			0,
 		);
 		const originalTotalHours = shifts.reduce(
-      // @ts-expect-error
+			// @ts-expect-error
 			(a, v) => a + parseFloat(v.Regular ?? 0),
 			0,
 		);
