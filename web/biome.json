@@ -38,6 +38,9 @@
       "correctness": {
         "useUniqueElementIds": "off",
         "useParseIntRadix": "off"
+      },
+      "style": {
+        "useNodejsImportProtocol": "off"
       }
     }
   },
