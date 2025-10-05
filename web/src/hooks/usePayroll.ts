@@ -100,6 +100,22 @@ const defaultRow = () => ({
 
 type OutputRow = ReturnType<typeof defaultRow>;
 
+const toHoursFromNumber = (value: number): number => {
+        if (!Number.isFinite(value)) {
+                return 0;
+        }
+
+        if (value <= 0) {
+                return 0;
+        }
+
+        if (value >= 60 && Number.isInteger(value)) {
+                return value / 60;
+        }
+
+        return value;
+};
+
 const parseTimesheetHours = (
         value: number | string | null | undefined,
 ): number => {
@@ -108,7 +124,7 @@ const parseTimesheetHours = (
         }
 
         if (typeof value === "number") {
-                return value;
+                return toHoursFromNumber(value);
         }
 
         const trimmed = `${value}`.trim();
@@ -129,12 +145,87 @@ const parseTimesheetHours = (
                 const safeMinutes = Number.isFinite(minutes) ? minutes : 0;
                 const safeSeconds = Number.isFinite(seconds) ? seconds : 0;
 
-                return safeHours + safeMinutes / 60 + safeSeconds / 3600;
+                return (
+                        safeHours +
+                        safeMinutes / 60 +
+                        safeSeconds / 3600
+                );
         }
 
         const numeric = Number(trimmed.replace(/,/g, ""));
 
-        return Number.isFinite(numeric) ? numeric : 0;
+        return Number.isFinite(numeric) ? toHoursFromNumber(numeric) : 0;
+};
+
+const getShiftDurationHours = (shift: OriginalTimesheetEntry): number | null => {
+        const start = shift["Start Time"];
+        const end = shift["End Time"];
+
+        if (!moment.isMoment(start) || !moment.isMoment(end)) {
+                return null;
+        }
+
+        const minutes = end.diff(start, "minutes");
+
+        if (!Number.isFinite(minutes) || minutes <= 0) {
+                return 0;
+        }
+
+        return minutes / 60;
+};
+
+const calculateOriginalShiftHours = (shift: OriginalTimesheetEntry) => {
+        const regularRaw = parseTimesheetHours(shift.Regular);
+        const overtimeRaw = parseTimesheetHours(shift.OT);
+
+        if (regularRaw <= 0) {
+                return {
+                        regular: 0,
+                        overtime: overtimeRaw,
+                };
+        }
+
+        if (overtimeRaw <= 0) {
+                return {
+                        regular: regularRaw,
+                        overtime: 0,
+                };
+        }
+
+        const durationHours = getShiftDurationHours(shift);
+        const tolerance = 1 / 60; // one minute
+
+        if (
+                durationHours !== null &&
+                Math.abs(regularRaw - durationHours) <= tolerance
+        ) {
+                return {
+                        regular: Math.max(regularRaw - overtimeRaw, 0),
+                        overtime: overtimeRaw,
+                };
+        }
+
+        if (
+                durationHours !== null &&
+                Math.abs(regularRaw + overtimeRaw - durationHours) <= tolerance
+        ) {
+                return {
+                        regular: regularRaw,
+                        overtime: overtimeRaw,
+                };
+        }
+
+        if (regularRaw > overtimeRaw) {
+                return {
+                        regular: regularRaw - overtimeRaw,
+                        overtime: overtimeRaw,
+                };
+        }
+
+        return {
+                regular: regularRaw,
+                overtime: overtimeRaw,
+        };
 };
 
 export const runPayroll = (
@@ -323,14 +414,20 @@ export const runPayroll = (
 		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 		const total_hours = _.round(total_hours_raw, 2);
 
-                const originalRegularHoursRaw = shifts.reduce(
-                        (total, shift) => total + parseTimesheetHours(shift.Regular),
-                        0,
+                const originalTotals = shifts.reduce(
+                        (totals, shift) => {
+                                const { regular, overtime } =
+                                        calculateOriginalShiftHours(shift);
+
+                                return {
+                                        regular: totals.regular + regular,
+                                        overtime: totals.overtime + overtime,
+                                };
+                        },
+                        { regular: 0, overtime: 0 },
                 );
-                const originalOTHoursRaw = shifts.reduce(
-                        (total, shift) => total + parseTimesheetHours(shift.OT),
-                        0,
-                );
+                const originalRegularHoursRaw = originalTotals.regular;
+                const originalOTHoursRaw = originalTotals.overtime;
                 const originalTotalHoursRaw =
                         originalRegularHoursRaw + originalOTHoursRaw;
 
