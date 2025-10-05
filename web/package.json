@@ -7,7 +7,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "ci": "concurrently \"npm run check:fix\" \"npm run tsc\"",
+    "check:all": "concurrently \"npm run check:fix\" \"npm run tsc\"",
     "tsc": "tsc",
     "check": "npx @biomejs/biome check",
     "check:fix": "npx @biomejs/biome check --write",
