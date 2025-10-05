@@ -35,5 +35,6 @@ jobs:
           node-version: 16
       - shell: bash
         run: npm install
+        
       - name: Run Biome
         run: cd web && npm run tsc
