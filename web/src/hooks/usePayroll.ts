@@ -286,27 +286,31 @@ export const runPayroll = (
 		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 		const total_hours = _.round(total_hours_raw, 2);
 
-		const originalRegularHours = shifts.reduce((a, v) => {
-			if (name.includes("Clara")) {
-				console.log({ a, Regular: v.Regular ?? 0 });
-			}
-			// @ts-expect-error
-			return a + parseFloat(v.Regular ?? 0);
-		}, 0);
-		const originalOTHours = shifts.reduce(
-			// @ts-expect-error
-			(a, v) => a + parseFloat(v.OT ?? 0),
-			0,
-		);
-		const originalTotalHours = shifts.reduce(
-			// @ts-expect-error
-			(a, v) => a + parseFloat(v.Regular ?? 0) + parseFloat(v.OT ?? 0),
-			0,
-		);
+                const originalRegularHoursRaw = shifts.reduce((a, v) => {
+                        if (name.includes("Clara")) {
+                                console.log({ a, Regular: v.Regular ?? 0 });
+                        }
+                        // @ts-expect-error
+                        return a + parseFloat(v.Regular ?? 0);
+                }, 0);
+                const originalOTHoursRaw = shifts.reduce(
+                        // @ts-expect-error
+                        (a, v) => a + parseFloat(v.OT ?? 0),
+                        0,
+                );
+                const originalTotalHoursRaw = shifts.reduce(
+                        // @ts-expect-error
+                        (a, v) => a + parseFloat(v.Regular ?? 0) + parseFloat(v.OT ?? 0),
+                        0,
+                );
 
-		const diffreg = _.round(totalreg_hours_raw - originalRegularHours, 2);
-		const diffot = _.round(totalot_hours_raw - originalOTHours, 2);
-		const difftotal = _.round(total_hours_raw - originalTotalHours, 2);
+                const originalRegularHours = _.round(originalRegularHoursRaw, 2);
+                const originalOTHours = _.round(originalOTHoursRaw, 2);
+                const originalTotalHours = _.round(originalTotalHoursRaw, 2);
+
+                const diffreg = _.round(totalreg_hours - originalRegularHours, 2);
+                const diffot = _.round(totalot_hours - originalOTHours, 2);
+                const difftotal = _.round(total_hours - originalTotalHours, 2);
 
 		const hoursRow: PayrollRow = {
 			lastName: shifts[0]["Last Name"],
