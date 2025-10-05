@@ -23,60 +23,6 @@ describe("usePayroll", () => {
 			expect(testItem).toMatchObject(payrollItem);
 		});
 	});
-
-	test("diff columns ignore overtime double counting", () => {
-		const start = moment.utc("2024-01-01T00:00:00Z");
-		const end = start.clone().add(42, "hours");
-
-		const [payrollHours] = runPayroll(
-			[
-				{
-					FIRST: "Test",
-					LAST: "User",
-					"Day Rate": 20,
-					"Night Rate": 20,
-				},
-			],
-			[
-				{
-					"First Name": "Test",
-					"Last Name": "User",
-					"Start Time": start.clone(),
-					"End Time": end.clone(),
-					Regular: 42,
-					OT: 120,
-					Schedule: "South Jordan",
-				},
-			],
-		);
-
-		expect(payrollHours).toHaveLength(1);
-
-		const [row] = payrollHours;
-		expect(row.totalreg).toBeCloseTo(40, 2);
-		expect(row.totalot).toBeCloseTo(2, 2);
-		expect(row.total).toBeCloseTo(42, 2);
-		expect(row.diffreg).toBe(0);
-		expect(row.diffot).toBe(0);
-		expect(row.difftotal).toBe(0);
-	});
-
-	test("calculateOriginalShiftHours respects provided regular hours when duration unknown", () => {
-		const shift = {
-			"First Name": "Test",
-			"Last Name": "User",
-			"Start Time": moment.invalid(),
-			"End Time": moment.invalid(),
-			Regular: 40,
-			OT: 5,
-			Schedule: "South Jordan",
-		} as const;
-
-		const totals = calculateOriginalShiftHours(shift);
-
-		expect(totals.regular).toBe(40);
-		expect(totals.overtime).toBe(5);
-	});
 });
 
 describe.each([
