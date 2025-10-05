@@ -68,17 +68,17 @@ export const useFileWorkBook = () => {
 
 			const [dailyOtHours = 0, dailyOtMinutes = 0] = (entry["Daily overtime hours"]?.split(":") ?? []).map(Number);
 
-			if (!entry["Start Date"] || !entry.In || !entry["End Date"] || !entry.Out) {
+			if (entry.Job === "Unpaid Leave") {
+				return null;
+			}
+
+			if (!entry["Start Date"] || !entry["Start time"] || !entry["End Date"] || !entry["End time"]) {
 				notify.warn(`Missing date/time in entry for ${firstName} ${lastName}`);
 				return null;
 			}
 
-			if (entry.Type === "Unpaid Leave") {
-				return null;
-			}
-
-			const startTime = moment(`${entry["Start Date"].split(" ")[0]} ${entry.In}`);
-			const endTime = moment(`${entry["End Date"].split(" ")[0]} ${entry.Out}`);
+			const startTime = moment(`${entry["Start Date"].split(" ")[0]} ${entry["Start time"]}`);
+			const endTime = moment(`${entry["End Date"].split(" ")[0]} ${entry["End time"]}`);
 			if (!startTime.isValid() || !endTime.isValid()) {
 				notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
 				throw new Error("Invalid date/time");
@@ -91,7 +91,7 @@ export const useFileWorkBook = () => {
 				"End Time": endTime,
 				Regular: regularHours + regularMinutes / 60,
 				OT: dailyOtHours + dailyOtMinutes / 60,
-				Schedule: entry.Type || "No Schedule",
+				Schedule: entry.Job || "No Schedule",
 			};
 		});
 	};

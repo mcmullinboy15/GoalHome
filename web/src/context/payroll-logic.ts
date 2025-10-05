@@ -156,17 +156,17 @@ export const calculatePayrollHours = (timesheet: OriginalTimesheetEntry[]) => {
 		const totalreg_hours = _.round(totalreg_hours_raw, 2);
 		const total_hours = _.round(total_hours_raw, 2);
 
+		const originalRegularHours = shifts.reduce(
+			// @ts-expect-error
+			(a, v) => a + parseFloat(v.Regular ?? 0),
+			0,
+		);
 		const originalOTHours = shifts.reduce(
 			// @ts-expect-error
 			(a, v) => a + parseFloat(v.OT ?? 0),
 			0,
 		);
-		const originalTotalHours = shifts.reduce(
-			// @ts-expect-error
-			(a, v) => a + parseFloat(v.Regular ?? 0),
-			0,
-		);
-		const originalRegularHours = originalTotalHours - originalOTHours;
+		const originalTotalHours = originalRegularHours + originalOTHours;
 
 		const diffreg = _.round(totalreg_hours - originalRegularHours, 2);
 		const diffot = _.round(totalot_hours - originalOTHours, 2);
@@ -194,17 +194,8 @@ export const calculatePayrollHours = (timesheet: OriginalTimesheetEntry[]) => {
 			difftotal: difftotal === 0 ? 0 : difftotal,
 		};
 
-		if (name.includes("Clara")) {
-			console.log({ diffreg, totalreg_hours_raw, originalRegularHours });
-			console.log({ diffot, totalot_hours_raw, originalOTHours });
-			console.log({ difftotal, total_hours_raw, originalTotalHours });
-			console.log({ name, shifts, hoursRow });
-		}
-
 		payrollHours.push(hoursRow);
 	});
-
-	console.log({ payrollHours });
 
 	return payrollHours;
 };
