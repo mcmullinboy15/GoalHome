@@ -29,7 +29,6 @@
       "semicolons": "always",
       "trailingCommas": "all"
     }
-    
   },
   "linter": {
     "enabled": true,
@@ -37,7 +36,8 @@
     "rules": {
       "recommended": true,
       "correctness": {
-        "useUniqueElementIds": "off"
+        "useUniqueElementIds": "off",
+        "useParseIntRadix": "off"
       }
     }
   },

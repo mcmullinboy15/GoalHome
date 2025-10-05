@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/suspicious/noUnknownAtRules: <explanation> */
+/** biome-ignore-all lint/suspicious/noUnknownAtRules: Importing Tailwind */
 
 @tailwind base;
 @tailwind components;

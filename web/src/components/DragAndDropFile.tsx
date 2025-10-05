@@ -19,7 +19,7 @@ type DragAndDropFileProps = {
 };
 
 // Define type for event handlers
-type DragHandler = (event: DragEvent<HTMLDivElement>) => void;
+type DragHandler = (event: DragEvent<HTMLButtonElement>) => void;
 type ChangeHandler = (event: ChangeEvent<HTMLInputElement>) => void;
 
 export const DragAndDropFile: FC<DragAndDropFileProps> = ({
@@ -87,7 +87,8 @@ export const DragAndDropFile: FC<DragAndDropFileProps> = ({
 	);
 
 	return (
-		<div
+		<button
+			type="button"
 			className={[
 				`shadow-sm hover:shadow-md border-dashed rounded-md overflow-none border-white-500`,
 				dense ? "h-10" : "h-20",
@@ -119,6 +120,6 @@ export const DragAndDropFile: FC<DragAndDropFileProps> = ({
 				/>
 				{label}
 			</label>
-		</div>
+		</button>
 	);
 };
