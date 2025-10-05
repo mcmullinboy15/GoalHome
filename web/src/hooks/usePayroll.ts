@@ -270,44 +270,43 @@ export const runPayroll = (
 
 		const payrateSummary = summary_payrate[name];
 
-                const totalot_hours_raw =
-                        payrateSummary.dayot +
-                        payrateSummary.nightot +
-                        payrateSummary.pdayot +
-                        payrateSummary.pnightot;
-                const total_hours_raw =
-                        payrateSummary.day +
-                        payrateSummary.night +
-                        payrateSummary.pday +
-                        payrateSummary.pnight +
-                        totalot_hours_raw;
-                const totalreg_hours_raw = total_hours_raw - totalot_hours_raw;
+		const totalot_hours_raw =
+			payrateSummary.dayot +
+			payrateSummary.nightot +
+			payrateSummary.pdayot +
+			payrateSummary.pnightot;
+		const totalreg_hours_raw =
+			payrateSummary.day +
+			payrateSummary.night +
+			payrateSummary.pday +
+			payrateSummary.pnight;
+		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 
-                const totalot_hours = _.round(totalot_hours_raw, 2);
-                const total_hours = _.round(total_hours_raw, 2);
-                const totalreg_hours = _.round(totalreg_hours_raw, 2);
+		const totalot_hours = _.round(totalot_hours_raw, 2);
+		const totalreg_hours = _.round(totalreg_hours_raw, 2);
+		const total_hours = _.round(total_hours_raw, 2);
 
-		const originalRegularHours = shifts.reduce((a, v) => {
-			if (name.includes("Clara")) {
-				console.log({ a, Regular: v.Regular ?? 0 });
-			}
-			// @ts-expect-error
-			return a + parseFloat(v.Regular ?? 0);
-		}, 0);
+		if (name.includes("Clara")) {
+			console.log({ payrateSummary });
+			console.log({ totalot_hours_raw, totalreg_hours_raw, total_hours_raw });
+			console.log({ totalot_hours, totalreg_hours, total_hours });
+		}
+
 		const originalOTHours = shifts.reduce(
 			// @ts-expect-error
 			(a, v) => a + parseFloat(v.OT ?? 0),
 			0,
 		);
 		const originalTotalHours = shifts.reduce(
-			// @ts-expect-error
-			(a, v) => a + parseFloat(v.Regular ?? 0) + parseFloat(v.OT ?? 0),
+      // @ts-expect-error
+			(a, v) => a + parseFloat(v.Regular ?? 0),
 			0,
 		);
+		const originalRegularHours = originalTotalHours - originalOTHours;
 
-                const diffreg = _.round(totalreg_hours - originalRegularHours, 2);
-                const diffot = _.round(totalot_hours - originalOTHours, 2);
-                const difftotal = _.round(total_hours - originalTotalHours, 2);
+		const diffreg = _.round(totalreg_hours - originalRegularHours, 2);
+		const diffot = _.round(totalot_hours - originalOTHours, 2);
+		const difftotal = _.round(total_hours - originalTotalHours, 2);
 
 		const hoursRow: PayrollRow = {
 			lastName: shifts[0]["Last Name"],
