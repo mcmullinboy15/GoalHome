@@ -401,36 +401,27 @@ export const runPayroll = (
 			payrateSummary.nightot +
 			payrateSummary.pdayot +
 			payrateSummary.pnightot;
-
-		const totalreg_hours = _.round(totalreg_hours_raw, 2);
-		const totalot_hours = _.round(totalot_hours_raw, 2);
 		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
+
+		const totalot_hours = _.round(totalot_hours_raw, 2);
+		const totalreg_hours = _.round(totalreg_hours_raw, 2);
 		const total_hours = _.round(total_hours_raw, 2);
 
-                const originalTotals = shifts.reduce(
-                        (totals, shift) => {
-                                const { regular, overtime } =
-                                        calculateOriginalShiftHours(shift);
+		const originalOTHours = shifts.reduce(
+			// @ts-expect-error
+			(a, v) => a + parseFloat(v.OT ?? 0),
+			0,
+		);
+		const originalTotalHours = shifts.reduce(
+			// @ts-expect-error
+			(a, v) => a + parseFloat(v.Regular ?? 0),
+			0,
+		);
+		const originalRegularHours = originalTotalHours - originalOTHours;
 
-                                return {
-                                        regular: totals.regular + regular,
-                                        overtime: totals.overtime + overtime,
-                                };
-                        },
-                        { regular: 0, overtime: 0 },
-                );
-                const originalRegularHoursRaw = originalTotals.regular;
-                const originalOTHoursRaw = originalTotals.overtime;
-                const originalTotalHoursRaw =
-                        originalRegularHoursRaw + originalOTHoursRaw;
-
-                const originalRegularHours = _.round(originalRegularHoursRaw, 2);
-                const originalOTHours = _.round(originalOTHoursRaw, 2);
-                const originalTotalHours = _.round(originalTotalHoursRaw, 2);
-
-                const diffreg = _.round(totalreg_hours - originalRegularHours, 2);
-                const diffot = _.round(totalot_hours - originalOTHours, 2);
-                const difftotal = _.round(total_hours - originalTotalHours, 2);
+		const diffreg = _.round(totalreg_hours - originalRegularHours, 2);
+		const diffot = _.round(totalot_hours - originalOTHours, 2);
+		const difftotal = _.round(total_hours - originalTotalHours, 2);
 
 		const hoursRow: PayrollRow = {
 			lastName: shifts[0]["Last Name"],
@@ -453,7 +444,15 @@ export const runPayroll = (
 			diffot: diffot === 0 ? 0 : diffot,
 			difftotal: difftotal === 0 ? 0 : difftotal,
 		};
-                payrollHours.push(hoursRow);
+
+		if (name.includes("Clara")) {
+			console.log({ diffreg, totalreg_hours_raw, originalRegularHours });
+			console.log({ diffot, totalot_hours_raw, originalOTHours });
+			console.log({ difftotal, total_hours_raw, originalTotalHours });
+			console.log({ name, shifts, hoursRow });
+		}
+
+		payrollHours.push(hoursRow);
 
 		/**
 		 * Convert to Dollars
