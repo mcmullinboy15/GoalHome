@@ -270,21 +270,22 @@ export const runPayroll = (
 
 		const payrateSummary = summary_payrate[name];
 
-		const totalreg_hours_raw =
-			payrateSummary.day +
-			payrateSummary.night +
-			payrateSummary.pday +
-			payrateSummary.pnight;
-		const totalot_hours_raw =
-			payrateSummary.dayot +
-			payrateSummary.nightot +
-			payrateSummary.pdayot +
-			payrateSummary.pnightot;
+                const totalot_hours_raw =
+                        payrateSummary.dayot +
+                        payrateSummary.nightot +
+                        payrateSummary.pdayot +
+                        payrateSummary.pnightot;
+                const total_hours_raw =
+                        payrateSummary.day +
+                        payrateSummary.night +
+                        payrateSummary.pday +
+                        payrateSummary.pnight +
+                        totalot_hours_raw;
+                const totalreg_hours_raw = total_hours_raw - totalot_hours_raw;
 
-		const totalreg_hours = _.round(totalreg_hours_raw, 2);
-		const totalot_hours = _.round(totalot_hours_raw, 2);
-		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
-		const total_hours = _.round(total_hours_raw, 2);
+                const totalot_hours = _.round(totalot_hours_raw, 2);
+                const total_hours = _.round(total_hours_raw, 2);
+                const totalreg_hours = _.round(totalreg_hours_raw, 2);
 
 		const originalRegularHours = shifts.reduce((a, v) => {
 			if (name.includes("Clara")) {
@@ -304,9 +305,9 @@ export const runPayroll = (
 			0,
 		);
 
-		const diffreg = _.round(totalreg_hours_raw - originalRegularHours, 2);
-		const diffot = _.round(totalot_hours_raw - originalOTHours, 2);
-		const difftotal = _.round(total_hours_raw - originalTotalHours, 2);
+                const diffreg = _.round(totalreg_hours - originalRegularHours, 2);
+                const diffot = _.round(totalot_hours - originalOTHours, 2);
+                const difftotal = _.round(total_hours - originalTotalHours, 2);
 
 		const hoursRow: PayrollRow = {
 			lastName: shifts[0]["Last Name"],
