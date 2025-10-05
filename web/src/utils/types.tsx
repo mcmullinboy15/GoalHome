@@ -68,8 +68,8 @@ export type OriginalTimesheetEntry = {
 	"Last Name": string;
 	"Start Time": moment.Moment;
 	"End Time": moment.Moment;
-        Regular: number | string | null;
-        OT: number | string | null;
+	Regular: number | null;
+	OT: number | null;
 	Schedule: string;
 
 	"Employee ID"?: string;
