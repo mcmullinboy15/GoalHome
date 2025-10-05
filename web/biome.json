@@ -41,6 +41,9 @@
       },
       "style": {
         "useNodejsImportProtocol": "off"
+      },
+      "complexity": {
+        "noUselessTypeConstraint": "error"
       }
     }
   },
