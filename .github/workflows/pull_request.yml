@@ -29,9 +29,5 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-        with:
-          version: latest
-      - name: Run Biome
+      - name: Run TSC
         run: cd web && npm run tsc
