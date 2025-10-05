@@ -1,38 +1,42 @@
-import type React from "react";
-import { createContext, useMemo, useState } from "react";
-import type { PayrollRow } from "../utils/types";
+import React, { createContext, useState } from "react";
+import { notify } from "../notify";
+import type { OriginalTimesheetEntry, PayrollRow } from "../utils/types";
+import { calculatePayrollHours, verifyPayrollData } from "./payroll-logic";
 
 type PayrollContextType = {
-	payrollHours: PayrollRow[];
-	payrollDollars: PayrollRow[];
-	setPayrollHours: (payrollHours: PayrollRow[]) => void;
-	setPayrollDollars: (payrollDollars: PayrollRow[]) => void;
+	hours: PayrollRow[];
+	run: (payrollHours: OriginalTimesheetEntry[] | null) => void;
 };
 
-const PayrollContext = createContext<PayrollContextType>({
-	payrollHours: [],
-	payrollDollars: [],
-	setPayrollHours: () => {},
-	setPayrollDollars: () => {},
-});
+const PayrollContext = createContext<PayrollContextType | undefined>(undefined);
 
-const RunPayrollProvider = ({ children }: { children: React.ReactNode }) => {
-	const [payrollHours, setPayrollHours] = useState<PayrollRow[]>([]);
-	const [payrollDollars, setPayrollDollars] = useState<PayrollRow[]>([]);
+export const RunPayrollProvider = ({ children }: { children: React.ReactNode }) => {
+	const [hours, setHours] = useState<PayrollRow[]>([]);
 
-	const data = useMemo(
-		() => ({
-			payrollHours,
-			payrollDollars,
-			setPayrollHours,
-			setPayrollDollars,
-		}),
-		[payrollHours, payrollDollars],
-	);
+	const handleRunPayroll = (timesheetData: OriginalTimesheetEntry[] | null) => {
+		if (!timesheetData) {
+			notify.error("Missing Timesheet Data");
+			return [];
+		}
 
-	return (
-		<PayrollContext.Provider value={data}>{children}</PayrollContext.Provider>
-	);
+		const isValid = verifyPayrollData(timesheetData);
+		if (!isValid) {
+			return [];
+		}
+
+		const hours = calculatePayrollHours(timesheetData);
+
+		setHours(hours);
+	};
+
+	return <PayrollContext.Provider value={{ hours, run: handleRunPayroll }}>{children}</PayrollContext.Provider>;
 };
 
-export { RunPayrollProvider, PayrollContext };
+export const usePayroll = () => {
+	const context = React.useContext(PayrollContext);
+	if (context === undefined) {
+		throw new Error("usePayroll must be used within a RunPayrollProvider");
+	}
+
+	return context;
+};

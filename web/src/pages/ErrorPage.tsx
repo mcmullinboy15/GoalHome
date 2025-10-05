@@ -11,11 +11,8 @@ export const ErrorPage = () => {
 				<div className="my-4">Sorry, an unexpected error has occurred.</div>
 				<p>
 					<i>
-						{(isRouteErrorResponse(error)
-							? error.statusText
-							: error instanceof Error
-								? error.message
-								: null) || "Unknown Error"}
+						{(isRouteErrorResponse(error) ? error.statusText : error instanceof Error ? error.message : null) ||
+							"Unknown Error"}
 					</i>
 				</p>
 			</div>

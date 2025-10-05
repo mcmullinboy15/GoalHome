@@ -1,52 +1,9 @@
 import type moment from "moment";
 
-export type Settings = {
-	payRatesSheetName: string;
-	timesheetSheetName: string;
-	payrollSuffix: string;
-	payrollHoursSheetName: string;
-	payrollPaySheetName: string;
-};
-
-export type PayRate = {
-	LAST: string;
-	FIRST: string;
-	"Day Rate": number;
-	"Night Rate": number;
-};
-
 export type NewInputTimesheetEntry = {
-	// "First name": string;
-	// "Last name": string;
-	// Job: string;
-	// // "Start Date": moment.Moment;
-	// // "Start time": moment.Moment;
-	// // "End time": moment.Moment;
-
-	// "Start Date": moment.Moment;
-	// In: moment.Moment;
-	// "End Date": moment.Moment;
-	// Out: moment.Moment;
-
-	// "Shift hours"?: number;
-	// "Daily total hours": number;
-	// Regular: number;
-	// "Daily overtime hours": number;
-	// "Weekly total hours": number;
-	// "Total work hours": number;
-	// "Total Regular": number;
-	// "Total overtime hours": number;
-
 	"Daily total hours": string | null; // "04:00"
 	"Employee notes": string | null;
-	"End Date": string | null; // "08/30/2025"
-	"First name": string; // "Calista"
-	In: string | null; // "11:00 AM"
-	"Last name": string; // "Nielsen"
-	"Manager notes": string | null; // null
-	Out: string | null; // "03:00 PM"
 	"Shift hours": string | null; // "04:00"
-	"Start Date": string | null; // "08/30/2025"
 	"Total Overtime x1.5": string | null; // null
 	"Total Paid Hours": string | null; // "04:00"
 	"Total Regular": string | null; // "04:00"
@@ -54,8 +11,17 @@ export type NewInputTimesheetEntry = {
 	"Total paid time off hours": string | null; // null
 	"Total unpaid time off hours": string | null; // null
 	"Total work hours": string | null; // "04:00"
-	Type: string | null; // "Westland"
 	"Weekly total hours": string | null; // "04:00"
+	"Manager notes": string | null; // null
+
+	// Job	Start Date	Start time	End Date	End time
+	"First name": string; // "Calista"
+	"Last name": string; // "Nielsen"
+	Job: string | null; // "Westland"
+	"Start Date": string | null; // "08/30/2025"
+	"Start time": string | null; // "11:00 AM"
+	"End Date": string | null; // "08/30/2025"
+	"End time": string | null; // "03:00 PM"
 
 	// From other timesheet
 
@@ -135,8 +101,6 @@ export type PayrollRow = PayrollEntry & {
 	diffot?: number;
 	difftotal?: number;
 };
-
-export const PayRateFileHeaders = ["LAST", "FIRST", "Day Rate", "Night Rate"];
 
 // Moved the 4 dates over and renamed Job to Type
 

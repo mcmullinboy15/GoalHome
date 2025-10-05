@@ -1,44 +1,32 @@
 import type React from "react";
-import { createContext, useMemo, useState } from "react";
-import type { OriginalTimesheetEntry, PayRate } from "../utils/types";
+import { createContext, useContext, useState } from "react";
+import type { OriginalTimesheetEntry } from "../utils/types";
 
-export type FileWorkBookManagmentType = {
-	payRatesData: PayRate[] | null;
-	setPayRatesData: (payRatesData: PayRate[] | null) => void;
+type ContextType = {
 	timesheetData: OriginalTimesheetEntry[] | null;
 	setTimesheetData: (timesheetData: OriginalTimesheetEntry[] | null) => void;
 	timesheetFilename: string;
 	setTimesheetFilename: (timesheetFilename: string) => void;
 };
 
-const FileWorkBookContext = createContext<
-	FileWorkBookManagmentType | undefined
->(undefined);
+const FileWorkBookContext = createContext<ContextType | undefined>(undefined);
 
-const FileWorkBookProvider = ({ children }: { children: React.ReactNode }) => {
-	const [payRatesData, setPayRatesData] = useState<PayRate[] | null>(null);
-	const [timesheetData, setTimesheetData] = useState<
-		OriginalTimesheetEntry[] | null
-	>(null);
+export const FileWorkBookProvider = ({ children }: { children: React.ReactNode }) => {
+	const [timesheetData, setTimesheetData] = useState<OriginalTimesheetEntry[] | null>(null);
 	const [timesheetFilename, setTimesheetFilename] = useState<string>("");
 
-	const data = useMemo(
-		() => ({
-			payRatesData,
-			setPayRatesData,
-			timesheetData,
-			setTimesheetData,
-			timesheetFilename,
-			setTimesheetFilename,
-		}),
-		[payRatesData, timesheetData, timesheetFilename],
-	);
-
 	return (
-		<FileWorkBookContext.Provider value={data}>
+		<FileWorkBookContext.Provider value={{ timesheetData, setTimesheetData, timesheetFilename, setTimesheetFilename }}>
 			{children}
 		</FileWorkBookContext.Provider>
 	);
 };
 
-export { FileWorkBookProvider, FileWorkBookContext };
+export const useFileWorkBookManagment = () => {
+	const context = useContext(FileWorkBookContext);
+	if (context === undefined) {
+		throw new Error("useFileWorkBookManagment must be used within a FileWorkBookProvider");
+	}
+
+	return context;
+};

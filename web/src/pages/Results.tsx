@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/correctness/noNestedComponentDefinitions: Just need it for the column Cells */
 
-import { AccessTime, AttachMoney, Download } from "@mui/icons-material";
+import { Download } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import {
 	MaterialReactTable,
@@ -10,16 +10,11 @@ import {
 	useMaterialReactTable,
 } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
-import { useFileWorkBookManagment } from "../hooks/useFileWorkBookManagment";
-import { usePayroll } from "../hooks/usePayroll";
-import { useSettings } from "../hooks/useSettings";
+import { usePayroll } from "../context/payroll";
+import { useFileWorkBook } from "../hooks/useFileWorkBookManagment";
 import { notify } from "../notify";
-import {
-	type OriginalTimesheetEntry,
-	type PayRate,
-	PayrollColumns,
-	type PayrollRow,
-} from "../utils/types";
+import { settings } from "../utils/settings";
+import { type OriginalTimesheetEntry, PayrollColumns, type PayrollRow } from "../utils/types";
 
 type DiffProps = {
 	textColor?: string;
@@ -27,25 +22,17 @@ type DiffProps = {
 	value?: number;
 };
 
-const Diff = ({
-	textColor: _textColor,
-	bgColor: _bgColor,
-	value: _value,
-}: DiffProps) => {
-	const [value] = useState(_value && !Number.isNaN(_value) ? _value : 0);
-	const [textColor, setTextColor] = useState(_textColor);
-	const [bgColor, setBgColor] = useState(_bgColor);
+const Diff = (props: DiffProps) => {
+	const [value] = useState(props.value && !Number.isNaN(props.value) ? props.value : 0);
+	const [textColor, setTextColor] = useState(props.textColor);
+	const [bgColor, setBgColor] = useState(props.bgColor);
 
 	useEffect(() => {
 		if (!textColor) {
-			setTextColor(
-				value > 0 ? "text-green-700" : value < 0 ? "text-red-700" : textColor,
-			);
+			setTextColor(value > 0 ? "text-green-700" : value < 0 ? "text-red-700" : textColor);
 		}
 		if (!bgColor) {
-			setBgColor(
-				value > 0 ? "bg-green-100" : value < 0 ? "bg-red-100" : bgColor,
-			);
+			setBgColor(value > 0 ? "bg-green-100" : value < 0 ? "bg-red-100" : bgColor);
 		}
 	}, [textColor, bgColor, value]);
 
@@ -70,177 +57,80 @@ const Diff = ({
 type DetailPanelProps = {
 	row: MRT_Row<PayrollRow>;
 	table: MRT_TableInstance<PayrollRow>;
-	payRatesData: PayRate[] | null;
 	timesheetData: OriginalTimesheetEntry[] | null;
 };
 
-const DetailPanel = ({
-	row,
-	payRatesData,
-	timesheetData,
-}: DetailPanelProps) => {
+const DetailPanel = ({ row, timesheetData }: DetailPanelProps) => {
 	const timesheetRows = useMemo(() => {
-		if (!timesheetData) return [];
+		if (!timesheetData) {
+			return [];
+		}
 
-		return timesheetData.filter(
-			(x) =>
-				x["First Name"].toUpperCase() ===
-					(
-						row.getValue(PayrollColumns.FirstName) as PayrollRow["firstName"]
-					).toUpperCase() &&
-				x["Last Name"].toUpperCase() ===
-					(
-						row.getValue(PayrollColumns.LastName) as PayrollRow["lastName"]
-					).toUpperCase(),
-		);
+		const predicate = (x: OriginalTimesheetEntry) =>
+			x["First Name"].toUpperCase() === row.original[PayrollColumns.FirstName].toUpperCase() &&
+			x["Last Name"].toUpperCase() === row.original[PayrollColumns.LastName].toUpperCase();
+
+		return timesheetData.filter(predicate);
 	}, [timesheetData, row]);
 
-	const payRate = useMemo(() => {
-		if (!payRatesData) return null;
-
-		return payRatesData.find(
-			(x) =>
-				x.FIRST.toUpperCase() ===
-					(
-						row.getValue(PayrollColumns.FirstName) as PayrollRow["firstName"]
-					).toUpperCase() &&
-				x.LAST.toUpperCase() ===
-					(
-						row.getValue(PayrollColumns.LastName) as PayrollRow["lastName"]
-					).toUpperCase(),
-		);
-	}, [payRatesData, row]);
-
 	return (
-		<>
-			<table className="w-auto divide-y divide-gray-300">
-				<thead>
-					<tr>
-						<th
-							scope="col"
-							className="px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:pl-0"
-						>
-							Day Rate
-						</th>
-						<th
-							scope="col"
-							className="px-3 py-2 text-left text-sm font-semibold text-gray-900"
-						>
-							Night Rate
-						</th>
-					</tr>
-				</thead>
-				<tbody className="divide-y divide-gray-200">
-					<tr>
-						<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-							{payRate ? payRate["Day Rate"] : "N/A"}
+		<table className="w-auto divide-y divide-gray-300">
+			<thead>
+				<tr>
+					<th scope="col" className="px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+						Date
+					</th>
+					<th scope="col" className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+						Start
+					</th>
+					<th scope="col" className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+						End
+					</th>
+					<th scope="col" className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+						Regular
+					</th>
+					<th scope="col" className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+						OT
+					</th>
+					<th scope="col" className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+						Schedule
+					</th>
+				</tr>
+			</thead>
+			<tbody className="divide-y divide-gray-200">
+				{timesheetRows.map((shift, index) => (
+					<tr key={`${shift["First Name"]} ${index}`}>
+						<td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900 sm:pl-0">
+							{shift["Start Time"].format("MM/DD/YYYY")}
 						</td>
 						<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-							{payRate ? payRate["Night Rate"] : "N/A"}
+							{shift["Start Time"].format("hh:mm A")}
 						</td>
+						<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">{shift["End Time"].format("hh:mm A")}</td>
+						<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">{shift.Regular ?? "-"}</td>
+						<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">{shift.OT ?? "-"}</td>
+						<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">{shift.Schedule}</td>
 					</tr>
-				</tbody>
-			</table>
-
-			<table className="w-auto divide-y divide-gray-300">
-				<thead>
-					<tr>
-						<th
-							scope="col"
-							className="px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:pl-0"
-						>
-							Date
-						</th>
-						<th
-							scope="col"
-							className="px-3 py-2 text-left text-sm font-semibold text-gray-900"
-						>
-							Start
-						</th>
-						<th
-							scope="col"
-							className="px-3 py-2 text-left text-sm font-semibold text-gray-900"
-						>
-							End
-						</th>
-						<th
-							scope="col"
-							className="px-3 py-2 text-left text-sm font-semibold text-gray-900"
-						>
-							Regular
-						</th>
-						<th
-							scope="col"
-							className="px-3 py-2 text-left text-sm font-semibold text-gray-900"
-						>
-							OT
-						</th>
-						<th
-							scope="col"
-							className="px-3 py-2 text-left text-sm font-semibold text-gray-900"
-						>
-							Schedule
-						</th>
-					</tr>
-				</thead>
-				<tbody className="divide-y divide-gray-200">
-					{timesheetRows.map((shift, index) => (
-						<tr key={`${shift["First Name"]} ${index}`}>
-							<td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900 sm:pl-0">
-								{shift["Start Time"].format("MM/DD/YYYY")}
-							</td>
-							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{shift["Start Time"].format("hh:mm A")}
-							</td>
-							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{shift["End Time"].format("hh:mm A")}
-							</td>
-							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{shift.Regular ?? "-"}
-							</td>
-							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{shift.OT ?? "-"}
-							</td>
-							<td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-								{shift.Schedule}
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
-		</>
+				))}
+			</tbody>
+		</table>
 	);
 };
 
 export const Results = () => {
-	const [tableToggle, setTableToggle] = useState(true);
-	const { payrollHours, payrollDollars } = usePayroll();
-	const { payRatesData, timesheetData, onDownloadPayroll } =
-		useFileWorkBookManagment();
-	const { settings } = useSettings();
+	const { hours } = usePayroll();
+	const { timesheetData, onDownloadPayroll } = useFileWorkBook();
 
 	const handleDownload = () => {
-		if (payrollHours.length === 0) {
+		if (hours.length === 0) {
 			notify.error("No payroll data to download");
 			return;
 		}
 
-		return onDownloadPayroll(
-			payrollHours,
-			payrollDollars,
-			settings.payrollHoursSheetName,
-			settings.payrollPaySheetName,
-			settings.payrollSuffix,
-		);
+		return onDownloadPayroll(hours, settings.payrollHoursSheetName, settings.payrollSuffix);
 	};
 
 	// Define columns
-
-	// TODO:
-	// accessorFn: (row) => row[PayrollColumns.Day].toLocaleString('en-US', {
-	//   style: 'currency',
-	//   currency: 'USD',
-	// }),
 	const columns = useMemo((): MRT_ColumnDef<PayrollRow>[] => {
 		const x: MRT_ColumnDef<PayrollRow>[] = [
 			{
@@ -297,111 +187,22 @@ export const Results = () => {
 				accessorKey: PayrollColumns.TotalHours,
 				header: "Total Hours",
 			},
+			{
+				accessorKey: PayrollColumns.DiffRegular,
+				header: "Diff Regular",
+				Cell: ({ row }) => <Diff value={row.original[PayrollColumns.DiffRegular]} />,
+			},
+			{
+				accessorKey: PayrollColumns.DiffOT,
+				header: "Diff OT",
+				Cell: ({ row }) => <Diff value={row.original[PayrollColumns.DiffOT]} />,
+			},
+			{
+				accessorKey: PayrollColumns.DiffTotal,
+				header: "Diff Total",
+				Cell: ({ row }) => <Diff value={row.original[PayrollColumns.DiffTotal]} />,
+			},
 		];
-
-		if (tableToggle) {
-			x.push(
-				{
-					accessorKey: PayrollColumns.DiffRegular,
-					header: "Diff Regular",
-					Cell: ({ row }) => (
-						<Diff value={row.original[PayrollColumns.DiffRegular]} />
-					),
-				},
-				{
-					accessorKey: PayrollColumns.DiffOT,
-					header: "Diff OT",
-					Cell: ({ row }) => (
-						<Diff value={row.original[PayrollColumns.DiffOT]} />
-					),
-				},
-				{
-					accessorKey: PayrollColumns.DiffTotal,
-					header: "Diff Total",
-					Cell: ({ row }) => (
-						<Diff value={row.original[PayrollColumns.DiffTotal]} />
-					),
-				},
-				{
-					accessorKey: PayrollColumns.DiffFix,
-					header: "To Fix",
-					Cell: ({ row }) => {
-						const diffReg = row.original[PayrollColumns.DiffRegular] ?? 0;
-						const diffOT = row.original[PayrollColumns.DiffOT] ?? 0;
-
-						if (diffReg < 0 && diffOT > 0) {
-							// Regular is negative and OT is positive
-							// Therefore the person is missing regular hours or they are in OT
-							// So add more to regular hours. just in case let's not add more to OT hours
-							return (
-								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
-									Add
-									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(diffReg)}
-									</span>
-									To
-									<span className="font-bold text-blue-500 ml-1">Reg</span>
-								</span>
-							);
-						} else if (diffReg > 0 && diffOT < 0) {
-							// Regular is positive and OT is negative
-							// Therefore the person is missing regular hours or they are in OT
-							// So add more to regular hours. just in case let's not add more to OT hours
-							return (
-								<>
-									<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
-										Sub
-										<span className="font-bold text-blue-500 mx-1">
-											{Math.abs(diffReg)}
-										</span>
-										From
-										<span className="font-bold text-blue-500 mx-1">Reg</span>
-										(80hrs Max)
-									</span>
-
-									<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
-										Add
-										<span className="font-bold text-blue-500 mx-1">
-											{Math.abs(diffOT)}
-										</span>
-										To
-										<span className="font-bold text-blue-500 ml-1">OT</span>
-									</span>
-								</>
-							);
-						} else if (diffReg < 0) {
-							// Regular is negative and OT is 0
-							// Therefore the person is missing regular hours
-							// So add more to regular hours.
-							return (
-								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
-									Add
-									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(diffReg)}
-									</span>
-									To
-									<span className="font-bold text-blue-500 ml-1">Reg</span>
-								</span>
-							);
-						} else if (diffOT < 0) {
-							// OT is negative and Regular is 0
-							// Therefore the person is missing OT hours
-							// So add more to OT hours.
-							return (
-								<span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-600/10">
-									Add
-									<span className="font-bold text-blue-500 mx-1">
-										{Math.abs(diffOT)}
-									</span>
-									To
-									<span className="font-bold text-blue-500 ml-1">OT</span>
-								</span>
-							);
-						}
-					},
-				},
-			);
-		}
 
 		return x.map((col) => {
 			col.Cell =
@@ -412,13 +213,13 @@ export const Results = () => {
 				});
 			return col;
 		});
-	}, [tableToggle]);
+	}, []);
 
-	//pass table options to useMaterialReactTable
+	// Pass table options to useMaterialReactTable
 	const table = useMaterialReactTable({
 		columns,
-		data: tableToggle ? payrollHours : payrollDollars,
-		rowCount: (tableToggle ? payrollHours : payrollDollars).length,
+		data: hours,
+		rowCount: hours.length,
 		enableColumnOrdering: true,
 		enableHiding: true,
 		enablePagination: false,
@@ -437,25 +238,10 @@ export const Results = () => {
 			<div className="flex">
 				<Tooltip title="Download Payroll (.xlsx)">
 					<span>
-						<IconButton
-							disabled={!(tableToggle ? payrollHours : payrollDollars).length}
-							onClick={handleDownload}
-						>
-							<Download
-								className={
-									!(tableToggle ? payrollHours : payrollDollars).length
-										? ""
-										: "text-blue-500"
-								}
-							/>
+						<IconButton disabled={!hours.length} onClick={handleDownload}>
+							<Download className={!hours.length ? "" : "text-blue-500"} />
 						</IconButton>
 					</span>
-				</Tooltip>
-
-				<Tooltip title={tableToggle ? "Toggle to Pay" : "Toggle to Hours"}>
-					<IconButton onClick={() => setTableToggle(!tableToggle)}>
-						{tableToggle ? <AttachMoney /> : <AccessTime />}
-					</IconButton>
 				</Tooltip>
 			</div>
 		),
@@ -464,21 +250,12 @@ export const Results = () => {
 		},
 		muiTableBodyProps: {
 			sx: () => ({
-				[tableToggle ? "& > tr:nth-of-type(4n+1)" : "& tr:nth-of-type(2n+1)"]: {
+				"& > tr:nth-of-type(4n+1)": {
 					backgroundColor: "#eee !important",
 				},
 			}),
 		},
-		renderDetailPanel: !tableToggle
-			? undefined
-			: ({ row, table }) => (
-					<DetailPanel
-						row={row}
-						table={table}
-						payRatesData={payRatesData}
-						timesheetData={timesheetData}
-					/>
-				),
+		renderDetailPanel: ({ row, table }) => <DetailPanel row={row} table={table} timesheetData={timesheetData} />,
 	});
 
 	return <MaterialReactTable table={table} />;

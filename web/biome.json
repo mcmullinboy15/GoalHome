@@ -11,20 +11,23 @@
 	},
 	"formatter": {
 		"enabled": true,
+		"includes": ["src/**/*.{js,jsx,ts,tsx,json,css,scss,md,mdx,html}"],
 		"attributePosition": "auto",
 		"indentStyle": "tab",
 		"indentWidth": 2,
-		"lineWidth": 80,
+		"lineWidth": 120,
 		"lineEnding": "lf"
 	},
 	"linter": {
 		"enabled": true,
 
+		"includes": ["src/**/*.{js,jsx,ts,tsx,json,css,scss,md,mdx,html}"],
 		"rules": {
 			"recommended": true,
 			"correctness": {
 				"useUniqueElementIds": "off",
-				"useParseIntRadix": "off"
+				"useParseIntRadix": "off",
+				"noUnusedVariables": "error"
 			},
 			"style": {
 				"useNodejsImportProtocol": "off"
