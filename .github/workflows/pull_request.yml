@@ -18,4 +18,4 @@ jobs:
         with:
           version: latest
       - name: Run Biome
-        run: cd web && biome ci .
+        run: cd web && npm run ci
