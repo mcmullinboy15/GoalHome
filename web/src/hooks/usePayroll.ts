@@ -88,17 +88,54 @@ export const verifyPayrollData = (
 };
 
 const defaultRow = () => ({
-	day: 0,
-	night: 0,
-	dayot: 0,
-	nightot: 0,
-	pday: 0,
-	pnight: 0,
-	pdayot: 0,
-	pnightot: 0,
+        day: 0,
+        night: 0,
+        dayot: 0,
+        nightot: 0,
+        pday: 0,
+        pnight: 0,
+        pdayot: 0,
+        pnightot: 0,
 });
 
 type OutputRow = ReturnType<typeof defaultRow>;
+
+const parseTimesheetHours = (
+        value: number | string | null | undefined,
+): number => {
+        if (value === null || value === undefined) {
+                return 0;
+        }
+
+        if (typeof value === "number") {
+                return value;
+        }
+
+        const trimmed = `${value}`.trim();
+
+        if (!trimmed) {
+                return 0;
+        }
+
+        const colonParts = trimmed.split(":");
+
+        if (colonParts.length >= 2) {
+                const [hoursPart, minutesPart, secondsPart] = colonParts;
+                const hours = Number(hoursPart);
+                const minutes = Number(minutesPart);
+                const seconds = secondsPart ? Number(secondsPart) : 0;
+
+                const safeHours = Number.isFinite(hours) ? hours : 0;
+                const safeMinutes = Number.isFinite(minutes) ? minutes : 0;
+                const safeSeconds = Number.isFinite(seconds) ? seconds : 0;
+
+                return safeHours + safeMinutes / 60 + safeSeconds / 3600;
+        }
+
+        const numeric = Number(trimmed.replace(/,/g, ""));
+
+        return Number.isFinite(numeric) ? numeric : 0;
+};
 
 export const runPayroll = (
 	payRatesData: PayRate[] | null,
@@ -286,23 +323,16 @@ export const runPayroll = (
 		const total_hours_raw = totalreg_hours_raw + totalot_hours_raw;
 		const total_hours = _.round(total_hours_raw, 2);
 
-                const originalRegularHoursRaw = shifts.reduce((a, v) => {
-                        if (name.includes("Clara")) {
-                                console.log({ a, Regular: v.Regular ?? 0 });
-                        }
-                        // @ts-expect-error
-                        return a + parseFloat(v.Regular ?? 0);
-                }, 0);
+                const originalRegularHoursRaw = shifts.reduce(
+                        (total, shift) => total + parseTimesheetHours(shift.Regular),
+                        0,
+                );
                 const originalOTHoursRaw = shifts.reduce(
-                        // @ts-expect-error
-                        (a, v) => a + parseFloat(v.OT ?? 0),
+                        (total, shift) => total + parseTimesheetHours(shift.OT),
                         0,
                 );
-                const originalTotalHoursRaw = shifts.reduce(
-                        // @ts-expect-error
-                        (a, v) => a + parseFloat(v.Regular ?? 0) + parseFloat(v.OT ?? 0),
-                        0,
-                );
+                const originalTotalHoursRaw =
+                        originalRegularHoursRaw + originalOTHoursRaw;
 
                 const originalRegularHours = _.round(originalRegularHoursRaw, 2);
                 const originalOTHours = _.round(originalOTHoursRaw, 2);
@@ -333,14 +363,7 @@ export const runPayroll = (
 			diffot: diffot === 0 ? 0 : diffot,
 			difftotal: difftotal === 0 ? 0 : difftotal,
 		};
-		if (name.includes("Clara")) {
-			console.log({ diffreg, totalreg_hours_raw, originalRegularHours });
-			console.log({ diffot, totalot_hours_raw, originalOTHours });
-			console.log({ difftotal, total_hours_raw, originalTotalHours });
-			console.log({ name, shifts, hoursRow });
-		}
-
-		payrollHours.push(hoursRow);
+                payrollHours.push(hoursRow);
 
 		/**
 		 * Convert to Dollars
