@@ -18,10 +18,10 @@ export const App = () => {
 				<p className="text-gray-400 font-mono text-xs">For any questions or concerns please contact me at</p>
 
 				<a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
-					<Button variant="outlined">mcmullinand@gmail.com</Button>
+					<Buttogsn variant="outlined">mcmullinand@gmail.com</Buttogsn>
 				</a>
 
-				<p className="text-gray-400 font-mono text-xs">v2.0.1</p>
+				<p className="text-gray-400 font-mono text-xs">v2.0.0</p>
 			</footer>
 		</div>
 	);
