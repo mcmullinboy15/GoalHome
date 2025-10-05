@@ -35,7 +35,7 @@ jobs:
           node-version: 16
       - shell: bash
         run: |
-          pnpm fetch --frozen-lockfile
-          pnpm install --offline
+          npm fetch --frozen-lockfile
+          npm install --offline
       - name: Run Biome
         run: cd web && npm run tsc
