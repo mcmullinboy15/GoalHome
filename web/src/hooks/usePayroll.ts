@@ -88,137 +88,135 @@ export const verifyPayrollData = (
 };
 
 const defaultRow = () => ({
-        day: 0,
-        night: 0,
-        dayot: 0,
-        nightot: 0,
-        pday: 0,
-        pnight: 0,
-        pdayot: 0,
-        pnightot: 0,
+	day: 0,
+	night: 0,
+	dayot: 0,
+	nightot: 0,
+	pday: 0,
+	pnight: 0,
+	pdayot: 0,
+	pnightot: 0,
 });
 
 type OutputRow = ReturnType<typeof defaultRow>;
 
 const toHoursFromNumber = (value: number): number => {
-        if (!Number.isFinite(value)) {
-                return 0;
-        }
+	if (!Number.isFinite(value)) {
+		return 0;
+	}
 
-        if (value <= 0) {
-                return 0;
-        }
+	if (value <= 0) {
+		return 0;
+	}
 
-        if (value >= 60 && Number.isInteger(value)) {
-                return value / 60;
-        }
+	if (value >= 60 && Number.isInteger(value)) {
+		return value / 60;
+	}
 
-        return value;
+	return value;
 };
 
 const parseTimesheetHours = (
-        value: number | string | null | undefined,
+	value: number | string | null | undefined,
 ): number => {
-        if (value === null || value === undefined) {
-                return 0;
-        }
+	if (value === null || value === undefined) {
+		return 0;
+	}
 
-        if (typeof value === "number") {
-                return toHoursFromNumber(value);
-        }
+	if (typeof value === "number") {
+		return toHoursFromNumber(value);
+	}
 
-        const trimmed = `${value}`.trim();
+	const trimmed = `${value}`.trim();
 
-        if (!trimmed) {
-                return 0;
-        }
+	if (!trimmed) {
+		return 0;
+	}
 
-        const colonParts = trimmed.split(":");
+	const colonParts = trimmed.split(":");
 
-        if (colonParts.length >= 2) {
-                const [hoursPart, minutesPart, secondsPart] = colonParts;
-                const hours = Number(hoursPart);
-                const minutes = Number(minutesPart);
-                const seconds = secondsPart ? Number(secondsPart) : 0;
+	if (colonParts.length >= 2) {
+		const [hoursPart, minutesPart, secondsPart] = colonParts;
+		const hours = Number(hoursPart);
+		const minutes = Number(minutesPart);
+		const seconds = secondsPart ? Number(secondsPart) : 0;
 
-                const safeHours = Number.isFinite(hours) ? hours : 0;
-                const safeMinutes = Number.isFinite(minutes) ? minutes : 0;
-                const safeSeconds = Number.isFinite(seconds) ? seconds : 0;
+		const safeHours = Number.isFinite(hours) ? hours : 0;
+		const safeMinutes = Number.isFinite(minutes) ? minutes : 0;
+		const safeSeconds = Number.isFinite(seconds) ? seconds : 0;
 
-                return (
-                        safeHours +
-                        safeMinutes / 60 +
-                        safeSeconds / 3600
-                );
-        }
+		return safeHours + safeMinutes / 60 + safeSeconds / 3600;
+	}
 
-        const numeric = Number(trimmed.replace(/,/g, ""));
+	const numeric = Number(trimmed.replace(/,/g, ""));
 
-        return Number.isFinite(numeric) ? toHoursFromNumber(numeric) : 0;
+	return Number.isFinite(numeric) ? toHoursFromNumber(numeric) : 0;
 };
 
-const getShiftDurationHours = (shift: OriginalTimesheetEntry): number | null => {
-        const start = shift["Start Time"];
-        const end = shift["End Time"];
+const getShiftDurationHours = (
+	shift: OriginalTimesheetEntry,
+): number | null => {
+	const start = shift["Start Time"];
+	const end = shift["End Time"];
 
-        if (!moment.isMoment(start) || !moment.isMoment(end)) {
-                return null;
-        }
+	if (!moment.isMoment(start) || !moment.isMoment(end)) {
+		return null;
+	}
 
-        const minutes = end.diff(start, "minutes");
+	const minutes = end.diff(start, "minutes");
 
-        if (!Number.isFinite(minutes) || minutes <= 0) {
-                return 0;
-        }
+	if (!Number.isFinite(minutes) || minutes <= 0) {
+		return 0;
+	}
 
-        return minutes / 60;
+	return minutes / 60;
 };
 
 export const calculateOriginalShiftHours = (shift: OriginalTimesheetEntry) => {
-        const regularRaw = parseTimesheetHours(shift.Regular);
-        const overtimeRaw = parseTimesheetHours(shift.OT);
+	const regularRaw = parseTimesheetHours(shift.Regular);
+	const overtimeRaw = parseTimesheetHours(shift.OT);
 
-        if (regularRaw <= 0) {
-                return {
-                        regular: 0,
-                        overtime: overtimeRaw,
-                };
-        }
+	if (regularRaw <= 0) {
+		return {
+			regular: 0,
+			overtime: overtimeRaw,
+		};
+	}
 
-        if (overtimeRaw <= 0) {
-                return {
-                        regular: regularRaw,
-                        overtime: 0,
-                };
-        }
+	if (overtimeRaw <= 0) {
+		return {
+			regular: regularRaw,
+			overtime: 0,
+		};
+	}
 
-        const durationHours = getShiftDurationHours(shift);
-        const tolerance = 1 / 60; // one minute
+	const durationHours = getShiftDurationHours(shift);
+	const tolerance = 1 / 60; // one minute
 
-        if (
-                durationHours !== null &&
-                Math.abs(regularRaw - durationHours) <= tolerance
-        ) {
-                return {
-                        regular: Math.max(regularRaw - overtimeRaw, 0),
-                        overtime: overtimeRaw,
-                };
-        }
+	if (
+		durationHours !== null &&
+		Math.abs(regularRaw - durationHours) <= tolerance
+	) {
+		return {
+			regular: Math.max(regularRaw - overtimeRaw, 0),
+			overtime: overtimeRaw,
+		};
+	}
 
-        if (
-                durationHours !== null &&
-                Math.abs(regularRaw + overtimeRaw - durationHours) <= tolerance
-        ) {
-                return {
-                        regular: regularRaw,
-                        overtime: overtimeRaw,
-                };
-        }
+	if (
+		durationHours !== null &&
+		Math.abs(regularRaw + overtimeRaw - durationHours) <= tolerance
+	) {
+		return {
+			regular: regularRaw,
+			overtime: overtimeRaw,
+		};
+	}
 
-        return {
-                regular: regularRaw,
-                overtime: overtimeRaw,
-        };
+	return {
+		regular: regularRaw,
+		overtime: overtimeRaw,
+	};
 };
 
 export const runPayroll = (
