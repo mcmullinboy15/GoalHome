@@ -5,7 +5,8 @@ export const format = "MM-DD-YYYY HH:mm:ss";
 const _isoWeek = moment.fn.isoWeek;
 // @ts-expect-error
 moment.fn.isoWeek = function (week: number) {
-	var out: number = _isoWeek.call(this, week) as any;
+	// @ts-expect-error
+	var out: number = _isoWeek.call(this, week);
 	if (this.day() === 0) out += 1;
 	if (out === 53) return 1;
 	return out;
