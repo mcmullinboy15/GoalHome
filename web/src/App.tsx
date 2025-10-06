@@ -1,5 +1,3 @@
-import { InfoOutlined } from "@mui/icons-material";
-import { Tooltip } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import logo from "./assets/logo.png";
 import { Button } from "./components";
