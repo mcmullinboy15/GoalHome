@@ -14,17 +14,14 @@ export const App = () => {
 
 			<Outlet />
 
-			<footer className="h-12 mt-auto flex flex-row justify-end items-center gap-x-4 px-4 border border-t-2">
+			<footer className="mt-auto flex flex-col md:flex-row justify-end items-end md:items-center gap-y-2 gap-x-4 py-2 px-4 border border-t-2">
 				<div className="flex flex-grow" />
 
-				<Tooltip title="For any questions or concerns please contact me" arrow placement="top">
-					<a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
-						<Button variant="outlined">
-							mcmullinand@gmail.com
-							<InfoOutlined className="text-gray-400 ml-2" />
-						</Button>
-					</a>
-				</Tooltip>
+				<p className="text-gray-400 text-nowrap">For any questions or concerns please contact me at</p>
+
+				<a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
+					<Button variant="outlined">mcmullinand@gmail.com</Button>
+				</a>
 
 				<p className="text-gray-400 font-mono text-xs">v2.0.0</p>
 			</footer>
