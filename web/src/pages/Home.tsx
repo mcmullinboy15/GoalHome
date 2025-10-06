@@ -12,8 +12,8 @@ export const Home = () => {
 	const { run } = usePayroll();
 
 	return (
-		<main className="h-full">
-			<div className="flex justify-end gap-x-4 py-2 px-4">
+		<main>
+			<div className="flex flex-col md:flex-row justify-end gap-4 py-2 px-4 border-b-2">
 				<h1 className="text-3xl font-bold font-mono text-gray-400 whitespace-nowrap">Timesheet</h1>
 				<DragAndDropFile
 					dense
@@ -41,9 +41,7 @@ export const Home = () => {
 				</Button>
 			</div>
 
-			<div className="rounded-br-lg !h-full !w-full px-2 border-t-2 !my-0">
-				<Results />
-			</div>
+			<Results />
 		</main>
 	);
 };

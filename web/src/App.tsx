@@ -1,3 +1,5 @@
+import { InfoOutlined } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import logo from "./assets/logo.png";
 import { Button } from "./components";
@@ -12,14 +14,17 @@ export const App = () => {
 
 			<Outlet />
 
-			<footer className="h-12 flex flex-row justify-end items-center gap-x-4 px-4 border border-t-2">
+			<footer className="h-12 mt-auto flex flex-row justify-end items-center gap-x-4 px-4 border border-t-2">
 				<div className="flex flex-grow" />
 
-				<p className="text-gray-400 font-mono text-xs">For any questions or concerns please contact me at</p>
-
-				<a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
-					<Button variant="outlined">mcmullinand@gmail.com</Button>
-				</a>
+				<Tooltip title="For any questions or concerns please contact me" arrow placement="top">
+					<a href="mailto:mcmullinand@gmail.com" target="_blank" rel="noreferrer">
+						<Button variant="outlined">
+							mcmullinand@gmail.com
+							<InfoOutlined className="text-gray-400 ml-2" />
+						</Button>
+					</a>
+				</Tooltip>
 
 				<p className="text-gray-400 font-mono text-xs">v2.0.0</p>
 			</footer>
