@@ -21,7 +21,7 @@ export const App = () => {
 					<Button variant="outlined">mcmullinand@gmail.com</Button>
 				</a>
 
-				<p className="text-gray-400 font-mono text-xs">v2.0.0</p>
+				<p className="text-gray-400 font-mono text-xs">v3.0.0</p>
 			</footer>
 		</div>
 	);
