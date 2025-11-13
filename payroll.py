@@ -94,11 +94,10 @@ def _main(args):
 
     day_start, day_end = time(6,00), time(22,00)
     def by_shift(shift: pd.DataFrame, ceil=False):
-
-        minutes = shift[shift["Schedule"] != 'Paddington']['date'].dt.time
+        minutes = shift[shift["Schedule"] != "Paddington"]['date'].dt.time
         day_minutes   = ((minutes   >= day_start) & (minutes   < day_end)).sum()
 
-        p_minutes = shift[shift["Schedule"] == 'Paddington']['date'].dt.time
+        p_minutes = shift[shift["Schedule"] == "Paddington"]['date'].dt.time
         p_day_minutes = ((p_minutes >= day_start) & (p_minutes < day_end)).sum()
 
         print(f"pd.Series: {(day_minutes)} + {len(minutes) - day_minutes} = {len(minutes)}; {(p_day_minutes)} + {len(p_minutes) - p_day_minutes} = {len(p_minutes)} :: {len(shift)}")
