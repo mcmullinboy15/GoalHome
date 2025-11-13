@@ -39,8 +39,9 @@ export const calculatePayrollHours = (timesheet: OriginalTimesheetEntry[]) => {
 		const isPaddington = [
 			"Padd Upstairs".toLowerCase(),
 			"Padd Grave".toLowerCase(),
-			"Padd Downstairs".toLowerCase(),
-			"Padd B Grave".toLowerCase(),
+			// Add "Padd Downstairs" or "Padd B Grave" back to the set if they should earn the bonus again.
+			// "Padd Downstairs".toLowerCase(),
+			// "Padd B Grave".toLowerCase(),
 		].includes(loc.toLowerCase());
 
 		const range = toDateRange(startTime, endTime);
