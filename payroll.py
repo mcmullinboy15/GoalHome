@@ -16,23 +16,6 @@ files = os.listdir(cd)
 excel_files = list(filter(lambda x: not x.startswith("~") and x.endswith(".xlsx"), files))
 
 
-PADDINGTON_SCHEDULES = {
-    "paddington",
-    "padd upstairs",
-    "padd grave",
-    # Add "padd downstairs" or "padd b grave" back here if they should receive the bonus again.
-}
-
-
-def is_paddington_schedule(schedule: typing.Any) -> bool:
-    """Return True when a schedule should receive the Paddington bonus."""
-
-    if schedule is None:
-        return False
-
-    return str(schedule).strip().lower() in PADDINGTON_SCHEDULES
-
-
 def parse_args():
     parser = argparse.ArgumentParser()
 
@@ -111,13 +94,11 @@ def _main(args):
 
     day_start, day_end = time(6,00), time(22,00)
     def by_shift(shift: pd.DataFrame, ceil=False):
-        
-        paddington_mask = shift["Schedule"].map(is_paddington_schedule)
 
-        minutes = shift[~paddington_mask]['date'].dt.time
+        minutes = shift[shift["Schedule"] != 'Paddington']['date'].dt.time
         day_minutes   = ((minutes   >= day_start) & (minutes   < day_end)).sum()
 
-        p_minutes = shift[paddington_mask]['date'].dt.time
+        p_minutes = shift[shift["Schedule"] == 'Paddington']['date'].dt.time
         p_day_minutes = ((p_minutes >= day_start) & (p_minutes < day_end)).sum()
 
         print(f"pd.Series: {(day_minutes)} + {len(minutes) - day_minutes} = {len(minutes)}; {(p_day_minutes)} + {len(p_minutes) - p_day_minutes} = {len(p_minutes)} :: {len(shift)}")
@@ -206,7 +187,7 @@ def _main(args):
 
             night = lastItem['regular'] - day
 
-            hours = (day, night, 0, 0) if not is_paddington_schedule(lastItem['Schedule']) else (0, 0, day, night)
+            hours = (day, night, 0, 0) if lastItem['Schedule'] != 'Paddington' else (0, 0, day, night)
             lastItem['day'], lastItem['night'], lastItem['pday'], lastItem['pnight'] = hours
 
 
