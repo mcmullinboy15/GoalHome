@@ -26,7 +26,7 @@ const paddingtonSchedules = new Set(["paddington", "padd upstairs", "padd grave"
 // Add "Padd Downstairs" or "Padd B Grave" back to the set if they should earn the bonus again.
 
 const isPaddingtonSchedule = (schedule: unknown) =>
-        typeof schedule === "string" && paddingtonSchedules.has(schedule.trim().toLowerCase());
+	typeof schedule === "string" && paddingtonSchedules.has(schedule.trim().toLowerCase());
 
 type OutputRow = ReturnType<typeof defaultRow>;
 
@@ -40,8 +40,7 @@ export const calculatePayrollHours = (timesheet: OriginalTimesheetEntry[]) => {
 		const endTime = moment.utc(shift["End Time"], format).clone().local();
 
 		const name = `${shift["First Name"]} ${shift["Last Name"]}`;
-                const loc = shift.Schedule;
-                const isPaddington = isPaddingtonSchedule(loc);
+		const isPaddington = isPaddingtonSchedule(shift.Schedule);
 
 		const range = toDateRange(startTime, endTime);
 		range.forEach((date) => {
