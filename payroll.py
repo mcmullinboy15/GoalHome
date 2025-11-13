@@ -94,6 +94,7 @@ def _main(args):
 
     day_start, day_end = time(6,00), time(22,00)
     def by_shift(shift: pd.DataFrame, ceil=False):
+
         minutes = shift[shift["Schedule"] != "Paddington"]['date'].dt.time
         day_minutes   = ((minutes   >= day_start) & (minutes   < day_end)).sum()
 
