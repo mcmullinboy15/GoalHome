@@ -22,11 +22,6 @@ export const verifyPayrollData = (timesheetData: OriginalTimesheetEntry[]) => {
 };
 
 const defaultRow = () => ({ day: 0, night: 0, dayot: 0, nightot: 0, pday: 0, pnight: 0, pdayot: 0, pnightot: 0 });
-const paddingtonSchedules = new Set(["paddington", "padd upstairs", "padd grave"]);
-// Add "Padd Downstairs" or "Padd B Grave" back to the set if they should earn the bonus again.
-
-const isPaddingtonSchedule = (schedule: unknown) =>
-	typeof schedule === "string" && paddingtonSchedules.has(schedule.trim().toLowerCase());
 
 type OutputRow = ReturnType<typeof defaultRow>;
 
@@ -40,7 +35,14 @@ export const calculatePayrollHours = (timesheet: OriginalTimesheetEntry[]) => {
 		const endTime = moment.utc(shift["End Time"], format).clone().local();
 
 		const name = `${shift["First Name"]} ${shift["Last Name"]}`;
-		const isPaddington = isPaddingtonSchedule(shift.Schedule);
+		const loc = shift.Schedule;
+		const isPaddington = [
+			"Padd Upstairs".toLowerCase(),
+			"Padd Grave".toLowerCase(),
+			// Add "Padd Downstairs" or "Padd B Grave" back to the set if they should earn the bonus again.
+			// "Padd Downstairs".toLowerCase(),
+			// "Padd B Grave".toLowerCase(),
+		].includes(loc.toLowerCase());
 
 		const range = toDateRange(startTime, endTime);
 		range.forEach((date) => {
