@@ -77,8 +77,6 @@ export const useFileWorkBook = () => {
 				return null;
 			}
 
-			console.log("entry", entry);
-
 			const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
 			const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
 
@@ -112,12 +110,10 @@ export const useFileWorkBook = () => {
 		const file = files?.[0] || null;
 		// @ts-expect-error
 		const timesheetData: NewInputTimesheetEntry[] = await proccessXLSXFile(file, sheet_name);
-		console.log("timesheetData", timesheetData);
 
 		const originalTimesheetData = convertNewTimeSheetToTimesheetEntrys(timesheetData).filter(
 			(e): e is OriginalTimesheetEntry => e !== null,
 		);
-		console.log("originalTimesheetData", originalTimesheetData);
 
 		setTimesheetFilename(file?.name || "");
 		setTimesheetData(originalTimesheetData);
