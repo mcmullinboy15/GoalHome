@@ -77,9 +77,15 @@ export const useFileWorkBook = () => {
 				return null;
 			}
 
-			const startTime = moment(`${entry["Start Date"].split(" ")[0]} ${entry["Start time"]}`);
-			const endTime = moment(`${entry["End Date"].split(" ")[0]} ${entry["End time"]}`);
-			if (!startTime.isValid() || !endTime.isValid()) {
+			const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
+			const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
+
+			const startTime = entry["Start time"].includes(" ") ? entry["Start time"].split(" ")[1] : entry["Start time"];
+			const endTime = entry["End time"].includes(" ") ? entry["End time"].split(" ")[1] : entry["End time"];
+
+			const start = moment(`${startDate} ${startTime}`);
+			const end = moment(`${endDate} ${endTime}`);
+			if (!start.isValid() || !end.isValid()) {
 				notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
 				throw new Error("Invalid date/time");
 			}
@@ -87,8 +93,8 @@ export const useFileWorkBook = () => {
 			return {
 				"First Name": entry["First name"],
 				"Last Name": entry["Last name"],
-				"Start Time": startTime,
-				"End Time": endTime,
+				"Start Time": start,
+				"End Time": end,
 				Regular: regularHours + regularMinutes / 60,
 				OT: dailyOtHours + dailyOtMinutes / 60,
 				Schedule: entry.Job || "No Schedule",
