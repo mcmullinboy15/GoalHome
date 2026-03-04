@@ -98,8 +98,10 @@ const DetailPanel = ({ row, timesheetData }: DetailPanelProps) => {
 				</tr>
 			</thead>
 			<tbody className="divide-y divide-gray-200">
-				{timesheetRows.map((shift, index) => (
-					<tr key={`${shift["First Name"]} ${index}`}>
+				{timesheetRows.map((shift) => (
+					<tr
+						key={`${shift["First Name"]}-${shift["Last Name"]}-${shift["Start Time"].valueOf()}-${shift["End Time"].valueOf()}`}
+					>
 						<td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900 sm:pl-0">
 							{shift["Start Time"].format("MM/DD/YYYY")}
 						</td>
