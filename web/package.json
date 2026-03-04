@@ -14,7 +14,8 @@
     "lint": "npx @biomejs/biome lint",
     "lint:fix": "npx @biomejs/biome lint --write",
     "format": "npx @biomejs/biome format",
-    "format:fix": "npx @biomejs/biome format --write"
+    "format:fix": "npx @biomejs/biome format --write",
+    "test:ci": "react-scripts test --watchAll=false --runTestsByPath src/tests/file-output.ci.test.ts"
   },
   "browserslist": {
     "production": [

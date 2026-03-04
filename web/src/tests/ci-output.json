@@ -1,0 +1,20 @@
+[
+	{
+		"lastName": "Employee",
+		"firstName": "Test",
+		"day": 8,
+		"night": 0,
+		"dayot": 0,
+		"nightot": 0,
+		"pday": 0,
+		"pnight": 0,
+		"pdayot": 0,
+		"pnightot": 0,
+		"totalreg": 8,
+		"totalot": 0,
+		"total": 8,
+		"diffreg": 0,
+		"diffot": 0,
+		"difftotal": 0
+	}
+]
