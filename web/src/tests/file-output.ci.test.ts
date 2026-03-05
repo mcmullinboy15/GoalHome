@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import path from "path";
 import { read, utils, write } from "xlsx";
 import { calculatePayrollHours } from "../context/payroll-logic";
 import { convertNewTimeSheetToTimesheetEntrys } from "../hooks/useFileWorkBookManagment";
@@ -6,8 +7,8 @@ import { settings } from "../utils/settings";
 import type { NewInputTimesheetEntry, OriginalTimesheetEntry } from "../utils/types";
 import { format } from "../utils/utils";
 
-const INPUT_FILE = "./Quickbooks_report_2026-02-15_2026-02-28.xlsx";
-const EXPECTED_OUTPUT_FILE = "./Quickbooks_report_2026-02-15_2026-02-28 - Payroll.xlsx";
+const INPUT_FILE = path.join(__dirname, "Quickbooks_report_2026-02-15_2026-02-28.xlsx");
+const EXPECTED_OUTPUT_FILE = path.join(__dirname, "Quickbooks_report_2026-02-15_2026-02-28 - Payroll.xlsx");
 
 describe("CI payroll function-only test", () => {
 	test("processes Quickbooks report and matches expected output", async () => {
