@@ -5,6 +5,58 @@ import { notify } from "../notify";
 import type { NewInputTimesheetEntry, OriginalTimesheetEntry, PayrollRow } from "../utils/types";
 import { format, parseDate } from "../utils/utils";
 
+export const convertNewTimeSheetToTimesheetEntrys = (
+	timesheetData: NewInputTimesheetEntry[],
+): (OriginalTimesheetEntry | null)[] => {
+	return timesheetData.map((entry) => {
+		const firstName = entry["First name"];
+		const lastName = entry["Last name"];
+
+		const [regularHours = 0, regularMinutes = 0] = (entry.Regular?.split(":") ?? []).map(Number);
+
+		const [dailyOtHours = 0, dailyOtMinutes = 0] = (entry["Daily overtime hours"]?.split(":") ?? []).map(Number);
+
+		if (entry.Job === "Unpaid Leave") {
+			return null;
+		}
+
+		if (!entry["Start Date"] || !entry["Start time"] || !entry["End Date"] || !entry["End time"]) {
+			notify.warn(`Missing date/time in entry for ${firstName} ${lastName}`);
+			return null;
+		}
+
+		const startDate = parseDate(entry["Start Date"]);
+		const endDate = parseDate(entry["End Date"]);
+
+		// Extract hour:minute from format hour:minute:second:milliseconds AM/PM
+		// Also handles full date-time strings (matches time portion anywhere in the string)
+		const timeRegex = /(\d{1,2}):(\d{2}):\d{2}:\d{3}\s*(AM|PM)/i;
+		const startTimeMatch = entry["Start time"].match(timeRegex);
+		const endTimeMatch = entry["End time"].match(timeRegex);
+		const startTime = startTimeMatch
+			? `${startTimeMatch[1]}:${startTimeMatch[2]} ${startTimeMatch[3]}`
+			: entry["Start time"];
+		const endTime = endTimeMatch ? `${endTimeMatch[1]}:${endTimeMatch[2]} ${endTimeMatch[3]}` : entry["End time"];
+
+		const start = moment(`${startDate} ${startTime}`);
+		const end = moment(`${endDate} ${endTime}`);
+		if (!start.isValid() || !end.isValid()) {
+			notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
+			throw new Error("Invalid date/time");
+		}
+
+		return {
+			"First Name": entry["First name"],
+			"Last Name": entry["Last name"],
+			"Start Time": start,
+			"End Time": end,
+			Regular: regularHours + regularMinutes / 60,
+			OT: dailyOtHours + dailyOtMinutes / 60,
+			Schedule: entry.Job || "No Schedule",
+		};
+	});
+};
+
 export const useFileWorkBook = () => {
 	const context = useFileWorkBookManagment();
 
@@ -55,58 +107,6 @@ export const useFileWorkBook = () => {
 	// Download WorkBook
 	const downloadWorkBook = async (workbook: WorkBook, filename: string) => {
 		writeFile(workbook, filename, { bookType: "xlsx", type: "file" });
-	};
-
-	const convertNewTimeSheetToTimesheetEntrys = (
-		timesheetData: NewInputTimesheetEntry[],
-	): (OriginalTimesheetEntry | null)[] => {
-		return timesheetData.map((entry) => {
-			const firstName = entry["First name"];
-			const lastName = entry["Last name"];
-
-			const [regularHours = 0, regularMinutes = 0] = (entry.Regular?.split(":") ?? []).map(Number);
-
-			const [dailyOtHours = 0, dailyOtMinutes = 0] = (entry["Daily overtime hours"]?.split(":") ?? []).map(Number);
-
-			if (entry.Job === "Unpaid Leave") {
-				return null;
-			}
-
-			if (!entry["Start Date"] || !entry["Start time"] || !entry["End Date"] || !entry["End time"]) {
-				notify.warn(`Missing date/time in entry for ${firstName} ${lastName}`);
-				return null;
-			}
-
-		const startDate = parseDate(entry["Start Date"]);
-		const endDate = parseDate(entry["End Date"]);
-
-		// Extract hour:minute from format hour:minute:second:milliseconds AM/PM
-		// Also handles full date-time strings (matches time portion anywhere in the string)
-		const timeRegex = /(\d{1,2}):(\d{2}):\d{2}:\d{3}\s*(AM|PM)/i;
-		const startTimeMatch = entry["Start time"].match(timeRegex);
-		const endTimeMatch = entry["End time"].match(timeRegex);
-		const startTime = startTimeMatch
-			? `${startTimeMatch[1]}:${startTimeMatch[2]} ${startTimeMatch[3]}`
-			: entry["Start time"];
-		const endTime = endTimeMatch ? `${endTimeMatch[1]}:${endTimeMatch[2]} ${endTimeMatch[3]}` : entry["End time"];
-
-			const start = moment(`${startDate} ${startTime}`);
-			const end = moment(`${endDate} ${endTime}`);
-			if (!start.isValid() || !end.isValid()) {
-				notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
-				throw new Error("Invalid date/time");
-			}
-
-			return {
-				"First Name": entry["First name"],
-				"Last Name": entry["Last name"],
-				"Start Time": start,
-				"End Time": end,
-				Regular: regularHours + regularMinutes / 60,
-				OT: dailyOtHours + dailyOtMinutes / 60,
-				Schedule: entry.Job || "No Schedule",
-			};
-		});
 	};
 
 	/*
