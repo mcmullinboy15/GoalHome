@@ -11,6 +11,7 @@ export const useFileWorkBook = () => {
 	const { timesheetData, setTimesheetData } = context;
 	const { timesheetFilename, setTimesheetFilename } = context;
 
+	// Load Timesheet File and output the data
 	const proccessXLSXFile = async (file: File, sheet_name: string) => {
 		return new Promise<unknown[]>((resolve, reject) => {
 			const reader = new FileReader();
@@ -40,6 +41,7 @@ export const useFileWorkBook = () => {
 		});
 	};
 
+	// Convert Payroll Data to File
 	const worksheetsToWorkBook = async (worksheets: { worksheet: WorkSheet; sheet_name: string }[]) => {
 		const workbook = utils.book_new();
 		worksheets.forEach((worksheet) => {
@@ -50,6 +52,7 @@ export const useFileWorkBook = () => {
 
 	const convertListToWorkBook = async (data: Record<string, unknown>[]) => utils.json_to_sheet(data);
 
+	// Download WorkBook
 	const downloadWorkBook = async (workbook: WorkBook, filename: string) => {
 		writeFile(workbook, filename, { bookType: "xlsx", type: "file" });
 	};
@@ -77,6 +80,8 @@ export const useFileWorkBook = () => {
 		const startDate = parseDate(entry["Start Date"]);
 		const endDate = parseDate(entry["End Date"]);
 
+		// Extract hour:minute from format hour:minute:second:milliseconds AM/PM
+		// Also handles full date-time strings (matches time portion anywhere in the string)
 		const timeRegex = /(\d{1,2}):(\d{2}):\d{2}:\d{3}\s*(AM|PM)/i;
 		const startTimeMatch = entry["Start time"].match(timeRegex);
 		const endTimeMatch = entry["End time"].match(timeRegex);
@@ -103,6 +108,10 @@ export const useFileWorkBook = () => {
 			};
 		});
 	};
+
+	/*
+	 * Event Handlers
+	 */
 
 	const onTimesheetFileInputChange = async (files: File[], sheet_name: string) => {
 		const file = files?.[0] || null;
