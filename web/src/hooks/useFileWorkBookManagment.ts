@@ -5,6 +5,51 @@ import { notify } from "../notify";
 import type { NewInputTimesheetEntry, OriginalTimesheetEntry, PayrollRow } from "../utils/types";
 import { format } from "../utils/utils";
 
+export const convertNewTimeSheetToTimesheetEntrys = (
+	timesheetData: NewInputTimesheetEntry[],
+): (OriginalTimesheetEntry | null)[] => {
+	return timesheetData.map((entry) => {
+		const firstName = entry["First name"];
+		const lastName = entry["Last name"];
+
+		const [regularHours = 0, regularMinutes = 0] = (entry.Regular?.split(":") ?? []).map(Number);
+
+		const [dailyOtHours = 0, dailyOtMinutes = 0] = (entry["Daily overtime hours"]?.split(":") ?? []).map(Number);
+
+		if (entry.Job === "Unpaid Leave") {
+			return null;
+		}
+
+		if (!entry["Start Date"] || !entry["Start time"] || !entry["End Date"] || !entry["End time"]) {
+			notify.warn(`Missing date/time in entry for ${firstName} ${lastName}`);
+			return null;
+		}
+
+		const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
+		const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
+
+		const startTime = entry["Start time"].includes(" ") ? entry["Start time"].split(" ")[1] : entry["Start time"];
+		const endTime = entry["End time"].includes(" ") ? entry["End time"].split(" ")[1] : entry["End time"];
+
+		const start = moment(`${startDate} ${startTime}`);
+		const end = moment(`${endDate} ${endTime}`);
+		if (!start.isValid() || !end.isValid()) {
+			notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
+			throw new Error("Invalid date/time");
+		}
+
+		return {
+			"First Name": entry["First name"],
+			"Last Name": entry["Last name"],
+			"Start Time": start,
+			"End Time": end,
+			Regular: regularHours + regularMinutes / 60,
+			OT: dailyOtHours + dailyOtMinutes / 60,
+			Schedule: entry.Job || "No Schedule",
+		};
+	});
+};
+
 export const useFileWorkBook = () => {
 	const context = useFileWorkBookManagment();
 
@@ -55,51 +100,6 @@ export const useFileWorkBook = () => {
 	// Download WorkBook
 	const downloadWorkBook = async (workbook: WorkBook, filename: string) => {
 		writeFile(workbook, filename, { bookType: "xlsx", type: "file" });
-	};
-
-	const convertNewTimeSheetToTimesheetEntrys = (
-		timesheetData: NewInputTimesheetEntry[],
-	): (OriginalTimesheetEntry | null)[] => {
-		return timesheetData.map((entry) => {
-			const firstName = entry["First name"];
-			const lastName = entry["Last name"];
-
-			const [regularHours = 0, regularMinutes = 0] = (entry.Regular?.split(":") ?? []).map(Number);
-
-			const [dailyOtHours = 0, dailyOtMinutes = 0] = (entry["Daily overtime hours"]?.split(":") ?? []).map(Number);
-
-			if (entry.Job === "Unpaid Leave") {
-				return null;
-			}
-
-			if (!entry["Start Date"] || !entry["Start time"] || !entry["End Date"] || !entry["End time"]) {
-				notify.warn(`Missing date/time in entry for ${firstName} ${lastName}`);
-				return null;
-			}
-
-			const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
-			const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
-
-			const startTime = entry["Start time"].includes(" ") ? entry["Start time"].split(" ")[1] : entry["Start time"];
-			const endTime = entry["End time"].includes(" ") ? entry["End time"].split(" ")[1] : entry["End time"];
-
-			const start = moment(`${startDate} ${startTime}`);
-			const end = moment(`${endDate} ${endTime}`);
-			if (!start.isValid() || !end.isValid()) {
-				notify.warn(`Invalid date/time in entry for ${firstName} ${lastName}`);
-				throw new Error("Invalid date/time");
-			}
-
-			return {
-				"First Name": entry["First name"],
-				"Last Name": entry["Last name"],
-				"Start Time": start,
-				"End Time": end,
-				Regular: regularHours + regularMinutes / 60,
-				OT: dailyOtHours + dailyOtMinutes / 60,
-				Schedule: entry.Job || "No Schedule",
-			};
-		});
 	};
 
 	/*
