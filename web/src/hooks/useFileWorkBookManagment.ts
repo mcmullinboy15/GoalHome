@@ -77,11 +77,17 @@ export const useFileWorkBook = () => {
 				return null;
 			}
 
-			const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
-			const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
+		const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
+		const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
 
-			const startTime = entry["Start time"].includes(" ") ? entry["Start time"].split(" ")[1] : entry["Start time"];
-			const endTime = entry["End time"].includes(" ") ? entry["End time"].split(" ")[1] : entry["End time"];
+		// Extract hour:minute from format hour:minute:second:milliseconds AM/PM
+		const timeRegex = /(\d{1,2}):(\d{2}):\d{2}:\d{3}\s*(AM|PM)/i;
+		const startTimeMatch = entry["Start time"].match(timeRegex);
+		const endTimeMatch = entry["End time"].match(timeRegex);
+		const startTime = startTimeMatch
+			? `${startTimeMatch[1]}:${startTimeMatch[2]} ${startTimeMatch[3]}`
+			: entry["Start time"];
+		const endTime = endTimeMatch ? `${endTimeMatch[1]}:${endTimeMatch[2]} ${endTimeMatch[3]}` : entry["End time"];
 
 			const start = moment(`${startDate} ${startTime}`);
 			const end = moment(`${endDate} ${endTime}`);
