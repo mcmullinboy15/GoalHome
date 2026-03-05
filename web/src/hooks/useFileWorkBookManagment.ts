@@ -3,7 +3,7 @@ import { read, utils, type WorkBook, type WorkSheet, writeFile } from "xlsx";
 import { useFileWorkBookManagment } from "../context/file-workbook";
 import { notify } from "../notify";
 import type { NewInputTimesheetEntry, OriginalTimesheetEntry, PayrollRow } from "../utils/types";
-import { format } from "../utils/utils";
+import { format, parseDate } from "../utils/utils";
 
 export const convertNewTimeSheetToTimesheetEntrys = (
 	timesheetData: NewInputTimesheetEntry[],
@@ -25,11 +25,18 @@ export const convertNewTimeSheetToTimesheetEntrys = (
 			return null;
 		}
 
-		const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
-		const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
+		const startDate = parseDate(entry["Start Date"]);
+		const endDate = parseDate(entry["End Date"]);
 
-		const startTime = entry["Start time"].includes(" ") ? entry["Start time"].split(" ")[1] : entry["Start time"];
-		const endTime = entry["End time"].includes(" ") ? entry["End time"].split(" ")[1] : entry["End time"];
+		// Extract hour:minute from format hour:minute:second:milliseconds AM/PM
+		// Also handles full date-time strings (matches time portion anywhere in the string)
+		const timeRegex = /(\d{1,2}):(\d{2}):\d{2}:\d{3}\s*(AM|PM)/i;
+		const startTimeMatch = entry["Start time"].match(timeRegex);
+		const endTimeMatch = entry["End time"].match(timeRegex);
+		const startTime = startTimeMatch
+			? `${startTimeMatch[1]}:${startTimeMatch[2]} ${startTimeMatch[3]}`
+			: entry["Start time"];
+		const endTime = endTimeMatch ? `${endTimeMatch[1]}:${endTimeMatch[2]} ${endTimeMatch[3]}` : entry["End time"];
 
 		const start = moment(`${startDate} ${startTime}`);
 		const end = moment(`${endDate} ${endTime}`);
