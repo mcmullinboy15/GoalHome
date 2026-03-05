@@ -32,3 +32,14 @@ export const toDateRange = (
 
 export const isDay = (date: moment.Moment) => date.hour() >= 6 && date.hour() < 22;
 export const isNight = (date: moment.Moment) => date.hour() < 6 || date.hour() >= 22;
+
+export const parseDate = (dateString: string): string => {
+	if (!dateString.includes(" ")) {
+		return dateString;
+	}
+	const parsed = moment(dateString);
+	if (parsed.isValid()) {
+		return parsed.format("YYYY-MM-DD");
+	}
+	return dateString.split(" ")[0];
+};

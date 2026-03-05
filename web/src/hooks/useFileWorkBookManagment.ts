@@ -3,7 +3,7 @@ import { read, utils, type WorkBook, type WorkSheet, writeFile } from "xlsx";
 import { useFileWorkBookManagment } from "../context/file-workbook";
 import { notify } from "../notify";
 import type { NewInputTimesheetEntry, OriginalTimesheetEntry, PayrollRow } from "../utils/types";
-import { format } from "../utils/utils";
+import { format, parseDate } from "../utils/utils";
 
 export const useFileWorkBook = () => {
 	const context = useFileWorkBookManagment();
@@ -11,7 +11,6 @@ export const useFileWorkBook = () => {
 	const { timesheetData, setTimesheetData } = context;
 	const { timesheetFilename, setTimesheetFilename } = context;
 
-	// Load Timesheet File and output the data
 	const proccessXLSXFile = async (file: File, sheet_name: string) => {
 		return new Promise<unknown[]>((resolve, reject) => {
 			const reader = new FileReader();
@@ -41,7 +40,6 @@ export const useFileWorkBook = () => {
 		});
 	};
 
-	// Convert Payroll Data to File
 	const worksheetsToWorkBook = async (worksheets: { worksheet: WorkSheet; sheet_name: string }[]) => {
 		const workbook = utils.book_new();
 		worksheets.forEach((worksheet) => {
@@ -52,7 +50,6 @@ export const useFileWorkBook = () => {
 
 	const convertListToWorkBook = async (data: Record<string, unknown>[]) => utils.json_to_sheet(data);
 
-	// Download WorkBook
 	const downloadWorkBook = async (workbook: WorkBook, filename: string) => {
 		writeFile(workbook, filename, { bookType: "xlsx", type: "file" });
 	};
@@ -77,10 +74,9 @@ export const useFileWorkBook = () => {
 				return null;
 			}
 
-		const startDate = entry["Start Date"].includes(" ") ? entry["Start Date"].split(" ")[0] : entry["Start Date"];
-		const endDate = entry["End Date"].includes(" ") ? entry["End Date"].split(" ")[0] : entry["End Date"];
+		const startDate = parseDate(entry["Start Date"]);
+		const endDate = parseDate(entry["End Date"]);
 
-		// Extract hour:minute from format hour:minute:second:milliseconds AM/PM
 		const timeRegex = /(\d{1,2}):(\d{2}):\d{2}:\d{3}\s*(AM|PM)/i;
 		const startTimeMatch = entry["Start time"].match(timeRegex);
 		const endTimeMatch = entry["End time"].match(timeRegex);
@@ -107,10 +103,6 @@ export const useFileWorkBook = () => {
 			};
 		});
 	};
-
-	/*
-	 * Event Handlers
-	 */
 
 	const onTimesheetFileInputChange = async (files: File[], sheet_name: string) => {
 		const file = files?.[0] || null;
