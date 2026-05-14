@@ -4,7 +4,7 @@ import { read, utils, write } from "xlsx";
 import { calculatePayrollHours } from "../context/payroll-logic";
 import { convertNewTimeSheetToTimesheetEntrys } from "../hooks/useFileWorkBookManagment";
 import { settings } from "../utils/settings";
-import type { NewInputTimesheetEntry, OriginalTimesheetEntry } from "../utils/types";
+import { type NewInputTimesheetEntry, type OriginalTimesheetEntry, PayrollDownloadHeaders } from "../utils/types";
 import { format } from "../utils/utils";
 
 const INPUT_FILE = path.join(__dirname, "Quickbooks_report_2026-02-15_2026-02-28.xlsx");
@@ -33,7 +33,7 @@ describe("CI payroll function-only test", () => {
 		const payrollHours = calculatePayrollHours(originalTimesheetData);
 		expect(payrollHours.length).toBeGreaterThan(0);
 
-		const worksheet = utils.json_to_sheet(payrollHours);
+		const worksheet = utils.json_to_sheet(payrollHours, { header: PayrollDownloadHeaders });
 		const workbook = utils.book_new();
 		utils.book_append_sheet(workbook, worksheet, settings.payrollHoursSheetName);
 
@@ -46,10 +46,16 @@ describe("CI payroll function-only test", () => {
 		});
 
 		const generatedWorkbook = read(generatedBuffer, { type: "buffer" });
-		const generatedRows = utils.sheet_to_json(generatedWorkbook.Sheets[settings.payrollHoursSheetName], {
+		const generatedSheet = generatedWorkbook.Sheets[settings.payrollHoursSheetName];
+		const generatedHeader = utils.sheet_to_json(generatedSheet, {
+			header: 1,
+			defval: null,
+		})[0];
+		const generatedRows = utils.sheet_to_json(generatedSheet, {
 			defval: null,
 		});
 
+		expect(generatedHeader).toEqual(PayrollDownloadHeaders);
 		expect(generatedRows).toEqual(expectedRows);
 	});
 });
