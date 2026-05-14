@@ -2,7 +2,12 @@ import moment from "moment/moment";
 import { read, utils, type WorkBook, type WorkSheet, writeFile } from "xlsx";
 import { useFileWorkBookManagment } from "../context/file-workbook";
 import { notify } from "../notify";
-import type { NewInputTimesheetEntry, OriginalTimesheetEntry, PayrollRow } from "../utils/types";
+import {
+	type NewInputTimesheetEntry,
+	type OriginalTimesheetEntry,
+	PayrollDownloadHeaders,
+	type PayrollRow,
+} from "../utils/types";
 import { format, parseDate } from "../utils/utils";
 
 export const convertNewTimeSheetToTimesheetEntrys = (
@@ -102,7 +107,8 @@ export const useFileWorkBook = () => {
 		return workbook;
 	};
 
-	const convertListToWorkBook = async (data: Record<string, unknown>[]) => utils.json_to_sheet(data);
+	const convertListToWorkBook = async (data: Record<string, unknown>[]) =>
+		utils.json_to_sheet(data, { header: PayrollDownloadHeaders });
 
 	// Download WorkBook
 	const downloadWorkBook = async (workbook: WorkBook, filename: string) => {
